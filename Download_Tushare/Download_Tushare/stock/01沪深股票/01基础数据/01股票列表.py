@@ -22,4 +22,3 @@ df = pro.query('stock_basic', exchange='', list_status='P', fields='ts_code,symb
 # load to mysql
 res = df.to_sql('stock_basic', engine, index=False, if_exists='append', chunksize=10000)
 print(res)
-
