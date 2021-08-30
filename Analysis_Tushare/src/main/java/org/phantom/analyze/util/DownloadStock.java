@@ -1,20 +1,26 @@
-package org.phantom.analyze.main;
+package org.phantom.analyze.util;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.phantom.analyze.common.Config;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class StockExecutor {
+public class DownloadStock {
 
     private static SparkSession session;
     private static Properties properties;
 
-    public StockExecutor(SparkSession session, Properties properties){
-        this.session = session;
-        this.properties = properties;
+    public DownloadStock(){
+        this.session = Config.session;
+        this.properties = Config.properties;
+    }
+
+    public static void main(String[] args) throws Exception {
+        new DownloadStock().execute();
     }
 
     public void execute() throws Exception {
@@ -54,5 +60,4 @@ public class StockExecutor {
         }
         return result;
     }
-
 }

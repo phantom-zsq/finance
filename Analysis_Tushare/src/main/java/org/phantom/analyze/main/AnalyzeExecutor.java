@@ -115,5 +115,4 @@ public class AnalyzeExecutor {
         }
         return result;
     }
-
 }
