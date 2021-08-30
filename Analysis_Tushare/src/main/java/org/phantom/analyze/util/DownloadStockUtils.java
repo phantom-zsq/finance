@@ -9,18 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class DownloadStock {
+public class DownloadStockUtils {
 
     private static SparkSession session;
     private static Properties properties;
 
-    public DownloadStock(){
+    public DownloadStockUtils(){
         this.session = Config.session;
         this.properties = Config.properties;
     }
 
     public static void main(String[] args) throws Exception {
-        new DownloadStock().execute();
+        new DownloadStockUtils().execute();
     }
 
     public void execute() throws Exception {
