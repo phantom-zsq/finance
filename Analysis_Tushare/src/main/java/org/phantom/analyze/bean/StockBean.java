@@ -3,6 +3,7 @@ package org.phantom.analyze.bean;
 public class StockBean {
 
     /********** 基本信息-股票 **********/
+    private String trade_date; // 交易日期
     private double close; // 收盘价
 
     /********** 基本信息-北向资金 **********/
@@ -10,7 +11,7 @@ public class StockBean {
 
     /********** 扩展信息 **********/
 
-    /********** 分析信息 **********/
+    /********** 策略信息 **********/
     private int status; // 买卖状态: 1买,-1卖,0不买不卖
     private long money; // 买卖金额
 
@@ -45,5 +46,13 @@ public class StockBean {
 
     public void setMoney(long money) {
         this.money = money;
+    }
+
+    public String getTrade_date() {
+        return trade_date;
+    }
+
+    public void setTrade_date(String trade_date) {
+        this.trade_date = trade_date;
     }
 }
