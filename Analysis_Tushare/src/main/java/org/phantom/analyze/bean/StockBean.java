@@ -8,13 +8,13 @@ public class StockBean {
 
     /********** 基本信息-北向资金 **********/
     private int bx_status; // 开始结束状态: 1开始,-1结束,0维持原状态
-    private double ratio; // 收盘价
+    private double ratio; // 持仓比例
     /********** 扩展信息-北向资金 **********/
-    private double avg_5; // 5日平均
-    private double avg_10; // 10日平均
-    private double avg_20; // 20日平均
-    private double avg_30; // 30日平均
-    private double avg_60; // 60日平均
+    private double avg_5; // 持仓比例5日平均
+    private double avg_10; // 持仓比例10日平均
+    private double avg_20; // 持仓比例20日平均
+    private double avg_30; // 持仓比例30日平均
+    private double avg_60; // 持仓比例60日平均
 
     /********** 基本信息-其他 **********/
 

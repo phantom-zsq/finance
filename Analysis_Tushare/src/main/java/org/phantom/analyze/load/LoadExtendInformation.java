@@ -1,13 +1,8 @@
 package org.phantom.analyze.load;
 
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.phantom.analyze.bean.StockBean;
 import org.phantom.analyze.common.Config;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -27,14 +22,18 @@ public class LoadExtendInformation {
         // 其他
     }
 
-    public void bxzj(List<StockBean> list) throws Exception {
-        avg(list, 60);
+    private void bxzj(List<StockBean> list) throws Exception {
+        setAvg(list, 5);
+        setAvg(list, 10);
+        setAvg(list, 20);
+        setAvg(list, 30);
+        setAvg(list, 60);
     }
 
-    public void avg(List<StockBean> list, int num) throws Exception {
+    private void setAvg(List<StockBean> list, int num) throws Exception {
         Double sum = 0.0;
-        boolean start = false;
         int j = 0;
+        boolean start = false;
         for (int i=0; i<list.size(); i++) {
             StockBean bean = list.get(i);
             int bxStatus = bean.getBx_status();
@@ -45,16 +44,36 @@ public class LoadExtendInformation {
                 Double ratio = bean.getRatio();
                 if(j<num){
                     sum += ratio;
-                    bean.setAvg_60(sum / (j+1));
+                    choiceAvg(bean, num, sum / (j+1));
+                    j++;
                 }else{
                     sum += ratio - list.get(i-num).getRatio();
-                    bean.setAvg_60(sum / num);
+                    choiceAvg(bean, num, sum / num);
                 }
-                j++;
             }
             if(bxStatus==-1){
                 start = false;
             }
+        }
+    }
+
+    private void choiceAvg(StockBean bean, int num, double value) throws Exception {
+        switch (num){
+            case 5:
+                bean.setAvg_5(value);
+                break;
+            case 10:
+                bean.setAvg_10(value);
+                break;
+            case 20:
+                bean.setAvg_20(value);
+                break;
+            case 30:
+                bean.setAvg_30(value);
+                break;
+            case 60:
+                bean.setAvg_60(value);
+                break;
         }
     }
 }

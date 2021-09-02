@@ -45,7 +45,7 @@ public class LoadBasicInformation {
                     bean.setBx_status(-1);
                 }
                 first = false;
-                hkHoldMap.put(row.getString(0), bean);
+                hkHoldMap.put(bean.getTrade_date(), bean);
             }
         }
         // 其他
