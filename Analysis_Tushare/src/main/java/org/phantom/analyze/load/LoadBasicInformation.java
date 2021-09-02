@@ -1,12 +1,9 @@
 package org.phantom.analyze.load;
 
-import org.apache.avro.generic.GenericData;
-import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.phantom.analyze.bean.StockBean;
 import org.phantom.analyze.common.Config;
-
 import java.util.*;
 
 public class LoadBasicInformation {
@@ -32,12 +29,27 @@ public class LoadBasicInformation {
         // 北向资金
         Map<String, StockBean> hkHoldMap = new HashMap<String, StockBean>();
         List<Row> hkHoldList = session.sql("select trade_date,ratio from hk_hold order by trade_date").collectAsList();
-        for(Row row : hkHoldList){
+        boolean first = true;
+        for(int i=0; i<hkHoldList.size(); i++){
+            Row row = hkHoldList.get(i);
             StockBean bean = new StockBean();
             bean.setTrade_date(row.getString(0));
             bean.setRatio(row.getDouble(1));
-            hkHoldMap.put(row.getString(0), bean);
+            if(first && bean.getRatio() == 0){
+                continue;
+            }else{
+                if(first){
+                    bean.setBx_status(1);
+                }
+                if(i==hkHoldList.size()-1){
+                    bean.setBx_status(-1);
+                }
+                first = false;
+                hkHoldMap.put(row.getString(0), bean);
+            }
         }
+        // 其他
+
         // 汇总
         for(StockBean bean : list){
             String trade_date = bean.getTrade_date();
@@ -45,7 +57,9 @@ public class LoadBasicInformation {
             StockBean hkHoldBean = hkHoldMap.get(trade_date);
             if(hkHoldBean != null){
                 bean.setRatio(hkHoldBean.getRatio());
+                bean.setBx_status(hkHoldBean.getBx_status());
             }
+            // 其他
         }
         return list;
     }
