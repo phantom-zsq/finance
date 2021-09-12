@@ -1,7 +1,17 @@
 package org.phantom.analyze.main;
 
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.phantom.analyze.bean.StockBean;
+import org.phantom.analyze.common.Config;
+import org.phantom.analyze.load.LoadBasicInformation;
+import org.phantom.analyze.load.LoadExtendInformation;
+import org.phantom.analyze.load.LoadOracleData;
+import org.phantom.analyze.strategy.Strategy;
+import org.phantom.analyze.verify.Verify;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class Executor {
@@ -9,27 +19,25 @@ public class Executor {
     private static SparkSession session;
     private static Properties properties;
 
+    public Executor(){
+        this.session = Config.session;
+        this.properties = Config.properties;
+    }
+
     public static void main(String[] args) throws Exception {
-        init();
-//        new StockExecutor(session, properties).execute();
-        new AnalyzeExecutor(session, properties).execute();
-
+        new LoadOracleData().load();
+        List<StockBean> list = new LoadBasicInformation().load();
+        new LoadExtendInformation().load(list);
+        new Strategy().analyze(list);
+        new Verify().verify(list);
     }
 
-    private static void init() {
-        initSpark();
-        initProperties();
-    }
-
-    private static void initSpark() {
-        session = SparkSession.builder().appName("tushare").master("local").getOrCreate();
-    }
-
-    private static void initProperties() {
-        properties = new Properties();
-        properties.put("driver", "com.mysql.jdbc.Driver");
-        properties.put("url", "jdbc:mysql://localhost:3306/tushare");
-        properties.put("user", "root");
-        properties.put("password", "123456");
+    public List<String> getStockList() throws Exception {
+        List<Row> list = session.read().jdbc(properties.getProperty("url"), "(select ts_code from hs_const where ts_code='603882.SH' order by ts_code desc) tt", properties).collectAsList();
+        List<String> result = new ArrayList<String>();
+        for (Row row : list) {
+            result.add(row.getString(0));
+        }
+        return result;
     }
 }
