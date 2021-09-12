@@ -6,7 +6,7 @@ import time
 from sqlalchemy import create_engine
 
 # create mysql engine
-engine = create_engine('mysql+pymysql://root:123456@localhost:3306/Download_Tushare')
+engine = create_engine('mysql+pymysql://root:123456@localhost:3306/tushare')
 # set Download_Tushare token
 ts.set_token('594b808743cb001d120038c81f3ec360ed7f6c81b45834d04a84a130')
 # get Download_Tushare api

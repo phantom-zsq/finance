@@ -13,8 +13,15 @@ ts.set_token('594b808743cb001d120038c81f3ec360ed7f6c81b45834d04a84a130')
 pro = ts.pro_api()
 
 # -------------------common start-------------------
-basic_df = pd.read_sql_query('select ts_code, list_date from stock_basic', engine)
+
+basic_df = pd.read_sql_query('select ts_code from cb_basic order by ts_code desc', engine)
 for index, row in basic_df.iterrows():
-    print(index, row[0], row[1])
-    df = ts.pro_bar(ts_code=row[0], adj='hfq', start_date='20201228', end_date='20201231')
-    res = df.to_sql('pro_bar', engine, index=False, if_exists='append', chunksize=10000)
+    print(index, row[0])
+    try:
+        # 获取可转债转股价变动
+        df = pro.cb_price_chg(ts_code=row[0])
+    except Exception:
+        print('exception: ' + row[0])
+    res = df.to_sql('cb_price_chg', engine, index=False, if_exists='append', chunksize=10000)
+    print(res)
+    time.sleep(15)

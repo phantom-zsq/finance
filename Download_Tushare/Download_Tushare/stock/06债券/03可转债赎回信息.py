@@ -13,13 +13,11 @@ ts.set_token('594b808743cb001d120038c81f3ec360ed7f6c81b45834d04a84a130')
 pro = ts.pro_api()
 
 # -------------------common start-------------------
-# 缺少数据
-#df = pro.query('hs_const', hs_type='SH', is_new='1')
-#df = pro.query('hs_const', hs_type='SH', is_new='0')
-#df = pro.query('hs_const', hs_type='SZ', is_new='1')
-df = pro.query('hs_const', hs_type='SZ', is_new='0')
+
+# 无权限
+df = pro.cb_call()
 
 # -------------------common end-------------------
 # load to mysql
-res = df.to_sql('hs_const', engine, index=False, if_exists='append', chunksize=10000)
+res = df.to_sql('cb_call', engine, index=False, if_exists='append', chunksize=10000)
 print(res)
