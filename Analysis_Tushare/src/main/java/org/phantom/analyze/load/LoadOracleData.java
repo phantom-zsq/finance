@@ -33,5 +33,11 @@ public class LoadOracleData {
         // 沪深港股通成交明细
         Dataset<Row> hkHold = session.read().jdbc(properties.getProperty("url"), "(select ts_code,date_format(trade_date,'%Y-%m-%d') as trade_date,ratio from hk_hold where ts_code=\'603997.SH\') tt", properties);
         hkHold.createOrReplaceTempView("hk_hold");
+        // 可转债基本信息
+        Dataset<Row> cbBasic = session.read().jdbc(properties.getProperty("url"), "(select * from cb_basic) tt", properties);
+        cbBasic.createOrReplaceTempView("cb_basic");
+        // 可转债行情
+        Dataset<Row> cbDaily = session.read().jdbc(properties.getProperty("url"), "(select * from cb_daily) tt", properties);
+        cbDaily.createOrReplaceTempView("cb_daily");
     }
 }
