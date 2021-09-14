@@ -24,12 +24,28 @@ public class BondExecutor {
     }
 
     public static void main(String[] args) throws Exception {
-        new BondExecutor().cal();
+        new BondExecutor().daxin();
     }
 
-    public void cal() throws Exception {
+    public void daxin() throws Exception {
         new LoadOracleData().load();
-        // load basic information
+        Map<String, List<BoneBean>> map = getInformation();
+        System.out.println("----------high----------");
+        high(map);
+        System.out.println("----------high----------");
+        for(int i=100; i<=200; i+=10){
+            System.out.println("----------day "+i+"----------");
+            day(map, i);
+            System.out.println("----------day "+i+"----------");
+        }
+        for(int i=1; i<=10; i++){
+            System.out.println("----------max "+i+"----------");
+            max(map, i);
+            System.out.println("----------max "+i+"----------");
+        }
+    }
+
+    public Map<String, List<BoneBean>> getInformation() throws Exception {
         Map<String, List<BoneBean>> map = new HashMap<String, List<BoneBean>>();
         List<Row> cbDaily = session.sql("select ts_code,trade_date,high from cb_daily where ts_code in(select ts_code from cb_basic where list_date >= '2018-01-01') order by ts_code,trade_date").collectAsList();
         for (Row row : cbDaily) {
@@ -45,25 +61,15 @@ public class BondExecutor {
             bean.setHigh(row.getDouble(2));
             list.add(bean);
         }
-        // high(map);
-        // day(map, 100);
-        max(map, 1);
-        max(map, 2);
-        max(map, 3);
-        max(map, 4);
-        max(map, 5);
-        max(map, 6);
-        max(map, 7);
-        max(map, 8);
-        max(map, 9);
-        max(map, 10);
+        return map;
     }
 
     public void high(Map<String, List<BoneBean>> map) throws Exception {
+        List<Double> lists = new ArrayList<Double>();
         for (String tsCode : map.keySet()) {
             List<BoneBean> list = map.get(tsCode);
             double max = 0;
-            int locate = 0;
+            int locate = -100;
             for (int i = 0; i < list.size(); i++) {
                 double high = list.get(i).getHigh();
                 if (high > max) {
@@ -71,23 +77,26 @@ public class BondExecutor {
                     locate = i + 1;
                 }
             }
-            System.out.println(max + ": " + locate);
+            lists.add(max);
         }
+        intervalLength(lists);
     }
 
     public void day(Map<String, List<BoneBean>> map, double max) throws Exception {
+        List<Double> lists = new ArrayList<Double>();
         for (String tsCode : map.keySet()) {
             List<BoneBean> list = map.get(tsCode);
-            int locate = 0;
+            int locate = -100;
             for (int i = 0; i < list.size(); i++) {
                 double high = list.get(i).getHigh();
-                if (high > max) {
+                if (high >= max) {
                     locate = i + 1;
                     break;
                 }
             }
-            System.out.println(locate);
+            lists.add(Double.valueOf(locate));
         }
+        intervalLength(lists);
     }
 
     public void max(Map<String, List<BoneBean>> map, int day) throws Exception {
@@ -95,7 +104,7 @@ public class BondExecutor {
         for (String tsCode : map.keySet()) {
             List<BoneBean> list = map.get(tsCode);
             double max = 0;
-            int locate = 0;
+            int locate = -100;
             for (int i = 0; i < list.size(); i++) {
                 double high = list.get(i).getHigh();
                 if (high > max) {
