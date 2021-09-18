@@ -21,6 +21,7 @@ public class Config {
 
     private static void initSpark() {
         session = SparkSession.builder().appName("tushare").master("local").getOrCreate();
+        session.sparkContext().setLogLevel("WARN");
     }
 
     private static void initProperties() {

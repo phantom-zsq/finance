@@ -1,9 +1,6 @@
 package org.phantom.finance.main;
 
 import org.apache.spark.sql.SparkSession;
-import org.phantom.finance.bond.BondExecutor;
-import org.phantom.finance.fund.FundExecutor;
-import org.phantom.finance.future.FutureExecutor;
 import org.phantom.finance.stock.StockExecutor;
 import java.util.*;
 
@@ -15,9 +12,6 @@ public class Executor {
     public static void main(String[] args) throws Exception {
         init();
         new StockExecutor(session, properties).execute();
-        new BondExecutor(session, properties).execute();
-        new FundExecutor(session, properties).execute();
-        new FutureExecutor(session, properties).execute();
     }
 
     private static void init() {
