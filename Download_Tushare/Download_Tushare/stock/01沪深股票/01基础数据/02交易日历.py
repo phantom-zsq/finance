@@ -13,7 +13,8 @@ ts.set_token('594b808743cb001d120038c81f3ec360ed7f6c81b45834d04a84a130')
 pro = ts.pro_api()
 
 # -------------------common start-------------------
-df = pro.query('trade_cal', start_date='19900101', end_date='20201231')
+#df = pro.query('trade_cal', exchange='SSE', start_date='19900101', end_date='20201231')
+df = pro.query('trade_cal', exchange='SZSE', start_date='19900101', end_date='20201231')
 
 # -------------------common end-------------------
 # load to mysql
