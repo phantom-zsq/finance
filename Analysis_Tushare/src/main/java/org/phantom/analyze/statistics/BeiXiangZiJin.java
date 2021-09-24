@@ -30,7 +30,7 @@ public class BeiXiangZiJin {
     }
 
     public List<StockBean> getMoneyflowHsgt() throws Exception {
-        List<StockBean> list = new ArrayList<StockBean>();;
+        List<StockBean> list = new ArrayList<StockBean>();
         List<Row> moneyflowHsgt = session.sql("select trade_date,north_money from moneyflow_hsgt where !(hgt is null and sgt is null) order by trade_date").collectAsList();
         for (Row row : moneyflowHsgt) {
             StockBean bean = new StockBean();
@@ -59,11 +59,11 @@ public class BeiXiangZiJin {
     }
 
     public void top10IntervalLength(List<StockBean> lists, Map<String, List<StockBean>> maps) throws Exception {
-        Map<String, List<Double>> results = new TreeMap<String, List<Double>>();
-        List<Double> all = new ArrayList<Double>();
+        Map<String, List<Double>> tsCodeLengths = new TreeMap<String, List<Double>>();
+        List<Double> allLengths = new ArrayList<Double>();
         for (String tsCode : maps.keySet()) {
             List<StockBean> list = maps.get(tsCode);
-            List<Double> locate = new ArrayList<Double>();
+            List<Double> lengths = new ArrayList<Double>();
             int k = 0;
             for(int i=0; i<list.size(); i++){
                 StockBean top10Bean = list.get(i);
@@ -73,24 +73,57 @@ public class BeiXiangZiJin {
                     String tradeDate = bean.getTrade_date();
                     if(top10TradeDate.equals(tradeDate)){
                         if(i != 0){
-                            locate.add(Double.valueOf(j)-Double.valueOf(k)-1);
-                            all.add(Double.valueOf(j)-Double.valueOf(k)-1);
+                            lengths.add(Double.valueOf(j)-Double.valueOf(k)-1);
+                            allLengths.add(Double.valueOf(j)-Double.valueOf(k)-1);
                         }
                         k = j;
                         break;
                     }
                 }
             }
-            results.put(tsCode, locate);
+            tsCodeLengths.put(tsCode, lengths);
         }
-        System.out.println("----------all----------");
-        intervalLength(all);
-        System.out.println("----------all----------");
-        for (String tsCode : results.keySet()) {
-            System.out.println("----------"+tsCode+"----------");
-            intervalLength(results.get(tsCode));
-            System.out.println("----------"+tsCode+"----------");
+        // 计算分值
+        Map<String, List<Double>> tsCodeScores = new TreeMap<String, List<Double>>();
+        List<Double> allScores = new ArrayList<Double>();
+        for (String tsCode : tsCodeLengths.keySet()) {
+            List<Double> list = tsCodeLengths.get(tsCode);
+            List<Double> score = getScore(list, 1);
+            tsCodeScores.put(tsCode, score);
+            allScores.addAll(score);
         }
+        // 打印
+//        System.out.println("----------allLengths----------");
+//        intervalLength(allLengths);
+//        System.out.println("----------allLengths----------");
+        System.out.println("----------allScores----------");
+        intervalLength(allScores);
+        System.out.println("----------allScores----------");
+//        for (String tsCode : tsCodeLengths.keySet()) {
+//            System.out.println("----------tsCodeLengths: "+tsCode+"----------");
+//            intervalLength(tsCodeLengths.get(tsCode));
+//            System.out.println("----------tsCodeLengths: "+tsCode+"----------");
+//        }
+        for (String tsCode : tsCodeScores.keySet()) {
+            System.out.println("----------tsCodeScores: "+tsCode+"----------");
+            intervalLength(tsCodeScores.get(tsCode));
+            System.out.println("----------tsCodeScores: "+tsCode+"----------");
+        }
+    }
+
+    public List<Double> getScore(List<Double> lists, int len) throws Exception {
+        List<Double> scoreLists = new ArrayList<Double>();
+        Double score = 1.0;
+        for(Double length : lists){
+            if(length <= len){
+                score++;
+            }else{
+                scoreLists.add(score);
+                score = 1.0;
+            }
+        }
+        scoreLists.add(score);
+        return scoreLists;
     }
 
     public void intervalLength(List<Double> lists) throws Exception {
