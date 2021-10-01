@@ -17,6 +17,7 @@ public class StockBean {
     private double avg_60; // 持仓比例60日平均
 
     /********** 基本信息-其他 **********/
+    private String end_date; // 交易日期
 
     /********** 策略信息 **********/
     private int status; // 买卖状态: 1买,-1卖,0不买不卖
@@ -109,5 +110,13 @@ public class StockBean {
 
     public void setAvg_60(double avg_60) {
         this.avg_60 = avg_60;
+    }
+
+    public String getEnd_date() {
+        return end_date;
+    }
+
+    public void setEnd_date(String end_date) {
+        this.end_date = end_date;
     }
 }

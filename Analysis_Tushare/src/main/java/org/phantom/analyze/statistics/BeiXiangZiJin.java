@@ -60,10 +60,12 @@ public class BeiXiangZiJin {
 
     public void top10IntervalLength(List<StockBean> lists, Map<String, List<StockBean>> maps) throws Exception {
         Map<String, List<Double>> tsCodeLengths = new TreeMap<String, List<Double>>();
+        Map<String, List<StockBean>> beanMap = new TreeMap<String, List<StockBean>>();
         List<Double> allLengths = new ArrayList<Double>();
         for (String tsCode : maps.keySet()) {
             List<StockBean> list = maps.get(tsCode);
             List<Double> lengths = new ArrayList<Double>();
+            List<StockBean> beanList = new ArrayList<StockBean>();
             int k = 0;
             for(int i=0; i<list.size(); i++){
                 StockBean top10Bean = list.get(i);
@@ -75,6 +77,9 @@ public class BeiXiangZiJin {
                         if(i != 0){
                             lengths.add(Double.valueOf(j)-Double.valueOf(k)-1);
                             allLengths.add(Double.valueOf(j)-Double.valueOf(k)-1);
+                            top10Bean.setEnd_date(lists.get(k).getTrade_date());
+                            top10Bean.setRatio(Double.valueOf(j)-Double.valueOf(k)-1);
+                            beanList.add(top10Bean);
                         }
                         k = j;
                         break;
@@ -82,6 +87,14 @@ public class BeiXiangZiJin {
                 }
             }
             tsCodeLengths.put(tsCode, lengths);
+            beanMap.put(tsCode, beanList);
+        }
+        // 计算分值和时间
+        for (String tsCode : beanMap.keySet()) {
+            System.out.println("----------scores: "+tsCode+"----------");
+            List<StockBean> list = beanMap.get(tsCode);
+            getScores(list, 1);
+            System.out.println("----------scores: "+tsCode+"----------");
         }
         // 计算分值
         Map<String, List<Double>> tsCodeScores = new TreeMap<String, List<Double>>();
@@ -99,15 +112,38 @@ public class BeiXiangZiJin {
         System.out.println("----------allScores----------");
         intervalLength(allScores);
         System.out.println("----------allScores----------");
-//        for (String tsCode : tsCodeLengths.keySet()) {
-//            System.out.println("----------tsCodeLengths: "+tsCode+"----------");
-//            intervalLength(tsCodeLengths.get(tsCode));
-//            System.out.println("----------tsCodeLengths: "+tsCode+"----------");
-//        }
+        for (String tsCode : tsCodeLengths.keySet()) {
+            System.out.println("----------tsCodeLengths: "+tsCode+"----------");
+            intervalLength(tsCodeLengths.get(tsCode));
+            System.out.println("----------tsCodeLengths: "+tsCode+"----------");
+        }
         for (String tsCode : tsCodeScores.keySet()) {
             System.out.println("----------tsCodeScores: "+tsCode+"----------");
             intervalLength(tsCodeScores.get(tsCode));
             System.out.println("----------tsCodeScores: "+tsCode+"----------");
+        }
+    }
+
+    public void getScores(List<StockBean> lists, int len) throws Exception {
+        Double score = 1.0;
+        String start = "";
+        String end = "";
+        for(StockBean bean : lists){
+            if(bean.getRatio() <= len){
+                if(score == 1.0){
+                    start = bean.getEnd_date();
+                }
+                end = bean.getTrade_date();
+                score++;
+            }else{
+                if(score != 1.0){
+                    System.out.println(score + ": " + start + ": " + end);
+                }
+                score = 1.0;
+            }
+        }
+        if(score != 1.0){
+            System.out.println(score + ": " + start + ": " + end);
         }
     }
 
