@@ -1,3 +1,9 @@
+//        // A股复权行情
+//        Dataset<Row> proBar1 = session.read().jdbc(properties.getProperty("url"), "(select ts_code,date_format(trade_date,'%Y-%m-%d') as trade_date,close from pro_bar where ts_code=\'603997.SH\') tt", properties);
+//        proBar1.createOrReplaceTempView("pro_bar");
+//        // 沪深港股通成交明细
+//        Dataset<Row> hkHold1 = session.read().jdbc(properties.getProperty("url"), "(select ts_code,date_format(trade_date,'%Y-%m-%d') as trade_date,ratio from hk_hold where ts_code=\'603997.SH\') tt", properties);
+//        hkHold1.createOrReplaceTempView("hk_hold");
 ----------scores: 000001.SZ----------
 2.0: 20161205: 20161206
 2.0: 20170126: 20170206

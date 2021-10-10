@@ -7,6 +7,7 @@ public class StockBean {
     private double close; // 收盘价
 
     /********** 基本信息-北向资金 **********/
+    private boolean bx_used; // 北向资金是否有效: true有效, false无效
     private int bx_status; // 开始结束状态: 1开始,-1结束,0维持原状态
     private double ratio; // 持仓比例
     /********** 扩展信息-北向资金 **********/
