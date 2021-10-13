@@ -2,12 +2,22 @@ package org.phantom.analyze.bean;
 
 public class StockBean {
 
-    /********** 基本信息-股票 **********/
+    /********** 基本信息-股票-行情 **********/
     private String trade_date; // 交易日期
     private double close; // 收盘价
+    private double pct_chg; // 涨跌幅
+    private double vol; // 成交量(手)
+    private double amount; // 成交额(千元)
+    /********** 基本信息-股票-每日指标 **********/
+    /********** 基本信息-股票-个股资金流向 **********/
+    /********** 基本信息-股票-备用行情 **********/
 
-    /********** 基本信息-北向资金 **********/
-    private boolean bx_used; // 北向资金是否有效: true有效, false无效
+    /********** 基本信息-北向资金-十大成交股 **********/
+    private int bx_used; // 当日是否有北向资金: 1有, -1无效
+    private double bx_net_amount; // 净成交金额
+
+    /********** 基本信息-北向资金-持股明细 **********/
+    private boolean bx_used1; // 北向资金是否有效: true有效, false无效
     private int bx_status; // 开始结束状态: 1开始,-1结束,0维持原状态
     private double ratio; // 持仓比例
     /********** 扩展信息-北向资金 **********/
@@ -119,5 +129,53 @@ public class StockBean {
 
     public void setEnd_date(String end_date) {
         this.end_date = end_date;
+    }
+
+    public double getPct_chg() {
+        return pct_chg;
+    }
+
+    public void setPct_chg(double pct_chg) {
+        this.pct_chg = pct_chg;
+    }
+
+    public double getVol() {
+        return vol;
+    }
+
+    public void setVol(double vol) {
+        this.vol = vol;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public int getBx_used() {
+        return bx_used;
+    }
+
+    public void setBx_used(int bx_used) {
+        this.bx_used = bx_used;
+    }
+
+    public double getBx_net_amount() {
+        return bx_net_amount;
+    }
+
+    public void setBx_net_amount(double bx_net_amount) {
+        this.bx_net_amount = bx_net_amount;
+    }
+
+    public boolean isBx_used1() {
+        return bx_used1;
+    }
+
+    public void setBx_used1(boolean bx_used1) {
+        this.bx_used1 = bx_used1;
     }
 }

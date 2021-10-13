@@ -28,7 +28,7 @@ public class LoadBasicInformation {
 
     public Map<String, List<StockBean>> loadStock() throws Exception {
         Map<String, List<StockBean>> map = new HashMap<String, List<StockBean>>();
-        List<Row> proBarList = session.sql("select ts_code,trade_date,close from pro_bar where ts_code in(select ts_code from white_list) order by ts_code,trade_date").collectAsList();
+        List<Row> proBarList = session.sql("select ts_code,trade_date,close,pct_chg,vol,amount from pro_bar where ts_code in(select ts_code from white_list) order by ts_code,trade_date").collectAsList();
         for (Row row : proBarList) {
             List<StockBean> list = new ArrayList<StockBean>();
             String tsCode = row.getString(0);
@@ -40,6 +40,9 @@ public class LoadBasicInformation {
             StockBean bean = new StockBean();
             bean.setTrade_date(row.getString(1));
             bean.setClose(row.getDouble(2));
+            bean.setPct_chg(row.getDouble(3));
+            bean.setVol(row.getDouble(4));
+            bean.setAmount(row.getDouble(5));
             list.add(bean);
         }
         return map;
