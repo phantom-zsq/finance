@@ -62,19 +62,57 @@ public class LoadBasicInformation {
     }
 
     public void loadBxTop10(Map<String, List<StockBean>> map) throws Exception {
-
+        Map<String, StockBean> hsgtTop10Map = new HashMap<String, StockBean>();
+        List<Row> hsgtTop10List = session.sql("select ts_code,trade_date,net_amount from hsgt_top10 where ts_code in(select ts_code from white_list) order by ts_code,trade_date").collectAsList();
+        for (int i = 0; i < hsgtTop10List.size(); i++) {
+            Row row = hsgtTop10List.get(i);
+            StockBean bean = new StockBean();
+            bean.setBx_net_amount(row.getDouble(2));
+            hsgtTop10Map.put(row.getString(0)+row.getDouble(1), bean);
+        }
+        for(String tsCode : map.keySet()){
+            List<StockBean> list = map.get(tsCode);
+            for (int i = 0; i < list.size(); i++) {
+                StockBean bean = list.get(i);
+                String tradeDate = bean.getTrade_date();
+                if(hsgtTop10Map.containsKey(tsCode+tradeDate)){
+                    bean.setBx_net_amount(hsgtTop10Map.get(tsCode+tradeDate).getBx_net_amount());
+                }
+            }
+        }
     }
 
     public void loadBxDetails(Map<String, List<StockBean>> map) throws Exception {
         Map<String, StockBean> hkHoldMap = new HashMap<String, StockBean>();
         List<Row> hkHoldList = session.sql("select ts_code,trade_date,ratio from hk_hold where ts_code in(select ts_code from white_list) order by ts_code,trade_date").collectAsList();
+        for (int i = 0; i < hkHoldList.size(); i++) {
+            Row row = hkHoldList.get(i);
+            StockBean bean = new StockBean();
+            bean.setBx_ratio(row.getDouble(2));
+            hkHoldMap.put(row.getString(0)+row.getDouble(1), bean);
+        }
+        for(String tsCode : map.keySet()){
+            List<StockBean> list = map.get(tsCode);
+            for (int i = 0; i < list.size(); i++) {
+                StockBean bean = list.get(i);
+                String tradeDate = bean.getTrade_date();
+                if(hkHoldMap.containsKey(tsCode+tradeDate)){
+                    bean.setBx_ratio(hkHoldMap.get(tsCode+tradeDate).getBx_ratio());
+                }
+            }
+        }
+    }
+
+    public void loadBxDetails2(Map<String, List<StockBean>> map) throws Exception {
+        Map<String, StockBean> hkHoldMap = new HashMap<String, StockBean>();
+        List<Row> hkHoldList = session.sql("select trade_date,ratio from hk_hold where ts_code in(select ts_code from white_list) order by ts_code,trade_date").collectAsList();
         boolean first = true;
         for (int i = 0; i < hkHoldList.size(); i++) {
             Row row = hkHoldList.get(i);
             StockBean bean = new StockBean();
             bean.setTrade_date(row.getString(0));
-            bean.setRatio(row.getDouble(1));
-            if (first && bean.getRatio() == 0) {
+            bean.setBx_ratio(row.getDouble(1));
+            if (first && bean.getBx_ratio() == 0) {
                 continue;
             } else {
                 if (first) {

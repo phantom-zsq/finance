@@ -5,7 +5,6 @@ import org.apache.spark.sql.SparkSession;
 import org.phantom.analyze.bean.StockBean;
 import org.phantom.analyze.common.Config;
 import org.phantom.analyze.load.LoadOracleData;
-
 import java.util.*;
 
 public class BeiXiangZiJin {
@@ -78,7 +77,7 @@ public class BeiXiangZiJin {
                             lengths.add(Double.valueOf(j)-Double.valueOf(k)-1);
                             allLengths.add(Double.valueOf(j)-Double.valueOf(k)-1);
                             top10Bean.setEnd_date(lists.get(k).getTrade_date());
-                            top10Bean.setRatio(Double.valueOf(j)-Double.valueOf(k)-1);
+                            top10Bean.setBx_ratio(Double.valueOf(j)-Double.valueOf(k)-1);
                             beanList.add(top10Bean);
                         }
                         k = j;
@@ -129,7 +128,7 @@ public class BeiXiangZiJin {
         String start = "";
         String end = "";
         for(StockBean bean : lists){
-            if(bean.getRatio() <= len){
+            if(bean.getBx_ratio() <= len){
                 if(score == 1.0){
                     start = bean.getEnd_date();
                 }

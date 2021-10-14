@@ -5,8 +5,6 @@ import org.apache.spark.sql.SparkSession;
 import org.phantom.analyze.bean.BoneBean;
 import org.phantom.analyze.common.Config;
 import org.phantom.analyze.load.LoadOracleData;
-import org.phantom.analyze.main.BondExecutor;
-
 import java.util.*;
 
 public class Bond {

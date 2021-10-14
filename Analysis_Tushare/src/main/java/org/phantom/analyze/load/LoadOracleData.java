@@ -4,7 +4,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.phantom.analyze.common.Config;
-
 import java.util.Properties;
 
 public class LoadOracleData {

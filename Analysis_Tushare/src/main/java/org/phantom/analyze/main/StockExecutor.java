@@ -16,8 +16,8 @@ public class StockExecutor {
         new LoadOracleData().load();
         new LoadWhiteListData().load();
         Map<String, List<StockBean>> map = new LoadBasicInformation().load();
-        new LoadExtendInformation().load(null);
-        new Strategy().analyze(null);
-        new Verify().verify(null);
+        new LoadExtendInformation().load(map);
+        new Strategy().analyze(map);
+        new Verify().verify(map);
     }
 }

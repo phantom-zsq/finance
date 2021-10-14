@@ -12,20 +12,22 @@ public class StockBean {
     /********** 基本信息-股票-个股资金流向 **********/
     /********** 基本信息-股票-备用行情 **********/
 
-    /********** 基本信息-北向资金-十大成交股 **********/
+    /********** 基本信息-北向资金-资金流向 **********/
     private int bx_used; // 当日是否有北向资金: 1有, -1无效
+
+    /********** 基本信息-北向资金-十大成交股 **********/
     private double bx_net_amount; // 净成交金额
 
     /********** 基本信息-北向资金-持股明细 **********/
-    private boolean bx_used1; // 北向资金是否有效: true有效, false无效
     private int bx_status; // 开始结束状态: 1开始,-1结束,0维持原状态
-    private double ratio; // 持仓比例
-    /********** 扩展信息-北向资金 **********/
-    private double avg_5; // 持仓比例5日平均
-    private double avg_10; // 持仓比例10日平均
-    private double avg_20; // 持仓比例20日平均
-    private double avg_30; // 持仓比例30日平均
-    private double avg_60; // 持仓比例60日平均
+    private double bx_ratio; // 持仓比例
+
+    /********** 扩展信息-北向资金-持股明细 **********/
+    private double bx_avg_5; // 持仓比例5日平均
+    private double bx_avg_10; // 持仓比例10日平均
+    private double bx_avg_20; // 持仓比例20日平均
+    private double bx_avg_30; // 持仓比例30日平均
+    private double bx_avg_60; // 持仓比例60日平均
 
     /********** 基本信息-其他 **********/
     private String end_date; // 交易日期
@@ -43,12 +45,12 @@ public class StockBean {
         this.close = close;
     }
 
-    public double getRatio() {
-        return ratio;
+    public double getBx_ratio() {
+        return bx_ratio;
     }
 
-    public void setRatio(double ratio) {
-        this.ratio = ratio;
+    public void setBx_ratio(double bx_ratio) {
+        this.bx_ratio = bx_ratio;
     }
 
     public int getStatus() {
@@ -83,44 +85,44 @@ public class StockBean {
         this.bx_status = bx_status;
     }
 
-    public double getAvg_5() {
-        return avg_5;
+    public double getBx_avg_5() {
+        return bx_avg_5;
     }
 
-    public void setAvg_5(double avg_5) {
-        this.avg_5 = avg_5;
+    public void setBx_avg_5(double bx_avg_5) {
+        this.bx_avg_5 = bx_avg_5;
     }
 
-    public double getAvg_10() {
-        return avg_10;
+    public double getBx_avg_10() {
+        return bx_avg_10;
     }
 
-    public void setAvg_10(double avg_10) {
-        this.avg_10 = avg_10;
+    public void setBx_avg_10(double bx_avg_10) {
+        this.bx_avg_10 = bx_avg_10;
     }
 
-    public double getAvg_20() {
-        return avg_20;
+    public double getBx_avg_20() {
+        return bx_avg_20;
     }
 
-    public void setAvg_20(double avg_20) {
-        this.avg_20 = avg_20;
+    public void setBx_avg_20(double bx_avg_20) {
+        this.bx_avg_20 = bx_avg_20;
     }
 
-    public double getAvg_30() {
-        return avg_30;
+    public double getBx_avg_30() {
+        return bx_avg_30;
     }
 
-    public void setAvg_30(double avg_30) {
-        this.avg_30 = avg_30;
+    public void setBx_avg_30(double bx_avg_30) {
+        this.bx_avg_30 = bx_avg_30;
     }
 
-    public double getAvg_60() {
-        return avg_60;
+    public double getBx_avg_60() {
+        return bx_avg_60;
     }
 
-    public void setAvg_60(double avg_60) {
-        this.avg_60 = avg_60;
+    public void setBx_avg_60(double bx_avg_60) {
+        this.bx_avg_60 = bx_avg_60;
     }
 
     public String getEnd_date() {
@@ -171,11 +173,4 @@ public class StockBean {
         this.bx_net_amount = bx_net_amount;
     }
 
-    public boolean isBx_used1() {
-        return bx_used1;
-    }
-
-    public void setBx_used1(boolean bx_used1) {
-        this.bx_used1 = bx_used1;
-    }
 }
