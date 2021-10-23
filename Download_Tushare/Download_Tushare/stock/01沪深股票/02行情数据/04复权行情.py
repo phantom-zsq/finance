@@ -17,4 +17,5 @@ basic_df = pd.read_sql_query('select ts_code,list_date from stock_basic where ma
 for index, row in basic_df.iterrows():
     print(index, row[0], row[1])
     df = ts.pro_bar(ts_code=row[0], adj='hfq', start_date='20210101', end_date='20211231')
-    res = df.to_sql('pro_bar', engine, index=False, if_exists='append', chunksize=10000)
+    if df is not None:
+        res = df.to_sql('pro_bar', engine, index=False, if_exists='append', chunksize=10000)

@@ -22,7 +22,8 @@ for index, row in basic_df.iterrows():
         df = ts.pro_bar(ts_code=row[0], adj='hfq', start_date=row[1], end_date='20050101')
         res = df.to_sql('pro_bar', engine, index=False, if_exists='append', chunksize=10000)
         df = ts.pro_bar(ts_code=row[0], adj='hfq', start_date='20050102', end_date='20201231')
-        res = df.to_sql('pro_bar', engine, index=False, if_exists='append', chunksize=10000)
+        if df is not None:
+            res = df.to_sql('pro_bar', engine, index=False, if_exists='append', chunksize=10000)
     elif row[1] > '20201231':
         print('null')
     else:
