@@ -13,8 +13,8 @@ ts.set_token('594b808743cb001d120038c81f3ec360ed7f6c81b45834d04a84a130')
 pro = ts.pro_api()
 
 # -------------------common start-------------------
-basic_df = pd.read_sql_query('select ts_code, list_date from stock_basic', engine)
+basic_df = pd.read_sql_query('select ts_code,list_date from stock_basic where market is not null', engine)
 for index, row in basic_df.iterrows():
     print(index, row[0], row[1])
-    df = ts.pro_bar(ts_code=row[0], adj='hfq', start_date='20201228', end_date='20201231')
+    df = ts.pro_bar(ts_code=row[0], adj='hfq', start_date='20210101', end_date='20211231')
     res = df.to_sql('pro_bar', engine, index=False, if_exists='append', chunksize=10000)
