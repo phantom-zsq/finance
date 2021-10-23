@@ -4,7 +4,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.phantom.analyze.common.Config;
-
 import java.util.Properties;
 
 public class LoadOracleData {
@@ -19,7 +18,7 @@ public class LoadOracleData {
 
     public void load() throws Exception {
         // A股复权行情
-        Dataset<Row> proBar = session.read().jdbc(properties.getProperty("url"), "(select ts_code,date_format(trade_date,'%Y-%m-%d') as trade_date,close from pro_bar where ts_code=\'603997.SH\') tt", properties);
+        Dataset<Row> proBar = session.read().jdbc(properties.getProperty("url"), "(select * from pro_bar) tt", properties);
         proBar.createOrReplaceTempView("pro_bar");
         // 沪深股通成分股
         Dataset<Row> hkHoldDS = session.read().jdbc(properties.getProperty("url"), "(select * from hk_hold) tt", properties);
@@ -31,7 +30,7 @@ public class LoadOracleData {
         Dataset<Row> hsgtTop10 = session.read().jdbc(properties.getProperty("url"), "(select * from hsgt_top10) tt", properties);
         hsgtTop10.createOrReplaceTempView("hsgt_top10");
         // 沪深港股通成交明细
-        Dataset<Row> hkHold = session.read().jdbc(properties.getProperty("url"), "(select ts_code,date_format(trade_date,'%Y-%m-%d') as trade_date,ratio from hk_hold where ts_code=\'603997.SH\') tt", properties);
+        Dataset<Row> hkHold = session.read().jdbc(properties.getProperty("url"), "(select * from hk_hold) tt", properties);
         hkHold.createOrReplaceTempView("hk_hold");
         // 可转债基本信息
         Dataset<Row> cbBasic = session.read().jdbc(properties.getProperty("url"), "(select * from cb_basic) tt", properties);

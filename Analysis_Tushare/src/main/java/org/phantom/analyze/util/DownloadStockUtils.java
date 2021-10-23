@@ -53,7 +53,7 @@ public class DownloadStockUtils {
     }
 
     public List<String> getStockList() throws Exception {
-        List<Row> list = session.read().jdbc(properties.getProperty("url"), "(select ts_code from hs_const where ts_code<'603997' order by ts_code desc) tt", properties).collectAsList();
+        List<Row> list = session.read().jdbc(properties.getProperty("url"), "(select distinct ts_code from hsgt_top10 where ts_code in('000333.SZ') order by ts_code desc) tt", properties).collectAsList();
         List<String> result = new ArrayList<String>();
         for (Row row : list) {
             result.add(row.getString(0));

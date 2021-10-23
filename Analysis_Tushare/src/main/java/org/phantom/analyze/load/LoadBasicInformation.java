@@ -11,56 +11,123 @@ public class LoadBasicInformation {
     private static SparkSession session;
     private static Properties properties;
 
-    public LoadBasicInformation(){
+    public LoadBasicInformation() {
         this.session = Config.session;
         this.properties = Config.properties;
     }
 
-    public List<StockBean> load() throws Exception {
-        // 股价
-        List<StockBean> list = new ArrayList<StockBean>();
-        List<Row> proBarList = session.sql("select trade_date,close from pro_bar order by trade_date").collectAsList();
-        for(Row row : proBarList){
+    public Map<String, List<StockBean>> load() throws Exception {
+        // A股复权行情
+        Map<String, List<StockBean>> map = loadStock();
+        // 北向资金
+        loadBx(map);
+        // 其他
+        loadOthers(map);
+        return map;
+    }
+
+    public Map<String, List<StockBean>> loadStock() throws Exception {
+        Map<String, List<StockBean>> map = new HashMap<String, List<StockBean>>();
+        List<Row> proBarList = session.sql("select ts_code,trade_date,close,pct_chg,vol,amount from pro_bar where ts_code in(select ts_code from white_list) order by ts_code,trade_date").collectAsList();
+        for (Row row : proBarList) {
+            List<StockBean> list = new ArrayList<StockBean>();
+            String tsCode = row.getString(0);
+            if (map.containsKey(tsCode)) {
+                list = map.get(tsCode);
+            } else {
+                map.put(tsCode, list);
+            }
             StockBean bean = new StockBean();
-            bean.setTrade_date(row.getString(0));
-            bean.setClose(row.getDouble(1));
+            bean.setTrade_date(row.getString(1));
+            bean.setClose(row.getDouble(2));
+            bean.setPct_chg(row.getDouble(3));
+            bean.setVol(row.getDouble(4));
+            bean.setAmount(row.getDouble(5));
             list.add(bean);
         }
-        // 北向资金
+        return map;
+    }
+
+    public void loadBx(Map<String, List<StockBean>> map) throws Exception {
+        // 沪深港通资金流向
+        loadBxMoneyFlow(map);
+        // 沪深股通十大成交股
+        loadBxTop10(map);
+        // 沪深港股通成交明细
+        loadBxDetails(map);
+    }
+
+    public void loadBxMoneyFlow(Map<String, List<StockBean>> map) throws Exception {
+
+    }
+
+    public void loadBxTop10(Map<String, List<StockBean>> map) throws Exception {
+        Map<String, StockBean> hsgtTop10Map = new HashMap<String, StockBean>();
+        List<Row> hsgtTop10List = session.sql("select ts_code,trade_date,net_amount from hsgt_top10 where ts_code in(select ts_code from white_list) order by ts_code,trade_date").collectAsList();
+        for (int i = 0; i < hsgtTop10List.size(); i++) {
+            Row row = hsgtTop10List.get(i);
+            StockBean bean = new StockBean();
+            bean.setBx_net_amount(row.getDouble(2));
+            hsgtTop10Map.put(row.getString(0)+row.getDouble(1), bean);
+        }
+        for(String tsCode : map.keySet()){
+            List<StockBean> list = map.get(tsCode);
+            for (int i = 0; i < list.size(); i++) {
+                StockBean bean = list.get(i);
+                String tradeDate = bean.getTrade_date();
+                if(hsgtTop10Map.containsKey(tsCode+tradeDate)){
+                    bean.setBx_net_amount(hsgtTop10Map.get(tsCode+tradeDate).getBx_net_amount());
+                }
+            }
+        }
+    }
+
+    public void loadBxDetails(Map<String, List<StockBean>> map) throws Exception {
         Map<String, StockBean> hkHoldMap = new HashMap<String, StockBean>();
-        List<Row> hkHoldList = session.sql("select trade_date,ratio from hk_hold order by trade_date").collectAsList();
+        List<Row> hkHoldList = session.sql("select ts_code,trade_date,ratio from hk_hold where ts_code in(select ts_code from white_list) order by ts_code,trade_date").collectAsList();
+        for (int i = 0; i < hkHoldList.size(); i++) {
+            Row row = hkHoldList.get(i);
+            StockBean bean = new StockBean();
+            bean.setBx_ratio(row.getDouble(2));
+            hkHoldMap.put(row.getString(0)+row.getDouble(1), bean);
+        }
+        for(String tsCode : map.keySet()){
+            List<StockBean> list = map.get(tsCode);
+            for (int i = 0; i < list.size(); i++) {
+                StockBean bean = list.get(i);
+                String tradeDate = bean.getTrade_date();
+                if(hkHoldMap.containsKey(tsCode+tradeDate)){
+                    bean.setBx_ratio(hkHoldMap.get(tsCode+tradeDate).getBx_ratio());
+                }
+            }
+        }
+    }
+
+    public void loadBxDetails2(Map<String, List<StockBean>> map) throws Exception {
+        Map<String, StockBean> hkHoldMap = new HashMap<String, StockBean>();
+        List<Row> hkHoldList = session.sql("select trade_date,ratio from hk_hold where ts_code in(select ts_code from white_list) order by ts_code,trade_date").collectAsList();
         boolean first = true;
-        for(int i=0; i<hkHoldList.size(); i++){
+        for (int i = 0; i < hkHoldList.size(); i++) {
             Row row = hkHoldList.get(i);
             StockBean bean = new StockBean();
             bean.setTrade_date(row.getString(0));
-            bean.setRatio(row.getDouble(1));
-            if(first && bean.getRatio() == 0){
+            bean.setBx_ratio(row.getDouble(1));
+            if (first && bean.getBx_ratio() == 0) {
                 continue;
-            }else{
-                if(first){
+            } else {
+                if (first) {
                     bean.setBx_status(1);
                 }
-                if(i==hkHoldList.size()-1){
+                if (i == hkHoldList.size() - 1) {
                     bean.setBx_status(-1);
                 }
                 first = false;
                 hkHoldMap.put(bean.getTrade_date(), bean);
             }
         }
-        // 其他
+    }
 
-        // 汇总
-        for(StockBean bean : list){
-            String trade_date = bean.getTrade_date();
-            // 北向资金
-            StockBean hkHoldBean = hkHoldMap.get(trade_date);
-            if(hkHoldBean != null){
-                bean.setRatio(hkHoldBean.getRatio());
-                bean.setBx_status(hkHoldBean.getBx_status());
-            }
-            // 其他
-        }
-        return list;
+    public void loadOthers(Map<String, List<StockBean>> map) throws Exception {
+
     }
 }
