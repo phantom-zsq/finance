@@ -13,7 +13,7 @@ ts.set_token('594b808743cb001d120038c81f3ec360ed7f6c81b45834d04a84a130')
 pro = ts.pro_api()
 
 # -------------------common start-------------------
-# 3天无数据(20180806,20190306,20201111)
+# 接口最早时间是20141117, 3天无数据(20180806,20190306,20201111)
 basic_df = pd.read_sql_query('select trade_date from moneyflow_hsgt where trade_date>=\'20190306\' and trade_date<\'20190307\' order by trade_date', engine)
 for index, row in basic_df.iterrows():
     print(index, row[0])
