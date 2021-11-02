@@ -18,7 +18,7 @@ public class LoadWhiteListData {
     }
 
     public void load() throws Exception {
-        Dataset<Row> whiteList = session.sql("select distinct ts_code from hsgt_top10 where ts_code in('000333.SZ')");
+        Dataset<Row> whiteList = session.sql("select distinct ts_code from hs_const");
         whiteList.createOrReplaceTempView("white_list");
     }
 }
