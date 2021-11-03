@@ -1,8 +1,11 @@
 package org.phantom.analyze.load;
 
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.phantom.analyze.bean.StockBean;
 import org.phantom.analyze.common.Config;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -83,6 +86,30 @@ public class LoadExtendInformation {
             case 60:
                 bean.setBx_avg_60(value);
                 break;
+        }
+    }
+
+    public void loadBxDetails2(Map<String, List<StockBean>> map) throws Exception {
+        Map<String, StockBean> hkHoldMap = new HashMap<String, StockBean>();
+        List<Row> hkHoldList = session.sql("select trade_date,ratio from hk_hold where ts_code in(select ts_code from white_list) order by ts_code,trade_date").collectAsList();
+        boolean first = true;
+        for (int i = 0; i < hkHoldList.size(); i++) {
+            Row row = hkHoldList.get(i);
+            StockBean bean = new StockBean();
+            bean.setTrade_date(row.getString(0));
+            bean.setBx_ratio(row.getDouble(1));
+            if (first && bean.getBx_ratio() == 0) {
+                continue;
+            } else {
+                if (first) {
+                    bean.setBx_status(1);
+                }
+                if (i == hkHoldList.size() - 1) {
+                    bean.setBx_status(-1);
+                }
+                first = false;
+                hkHoldMap.put(bean.getTrade_date(), bean);
+            }
         }
     }
 }
