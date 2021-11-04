@@ -21,8 +21,6 @@ public class LoadBasicInformation {
         Map<String, List<StockBean>> map = loadStock();
         // 北向资金
         loadBx(map);
-        // 其他
-        loadOthers(map);
         return map;
     }
 
@@ -123,9 +121,5 @@ public class LoadBasicInformation {
                 }
             }
         }
-    }
-
-    public void loadOthers(Map<String, List<StockBean>> map) throws Exception {
-
     }
 }

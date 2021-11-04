@@ -23,8 +23,12 @@ public class LoadExtendInformation {
     public void load(Map<String, List<StockBean>> map) throws Exception {
         // 北向资金
         bxzj(map);
-        // 其他
-        other(map);
+        // 趋势
+        trend(map);
+        // 支撑压力位
+        resistenceAndSupportPosition(map);
+        // macd
+        macd(map);
     }
 
     private void bxzj(Map<String, List<StockBean>> map) throws Exception {
@@ -35,7 +39,15 @@ public class LoadExtendInformation {
         setAvg(map, 60);
     }
 
-    private void other(Map<String, List<StockBean>> map) throws Exception {
+    private void trend(Map<String, List<StockBean>> map) throws Exception {
+
+    }
+
+    private void resistenceAndSupportPosition(Map<String, List<StockBean>> map) throws Exception {
+
+    }
+
+    private void macd(Map<String, List<StockBean>> map) throws Exception {
 
     }
 
