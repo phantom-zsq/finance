@@ -4,23 +4,32 @@ public class StockBean {
 
     /********** 基本信息-股票-行情 **********/
     private String trade_date; // 交易日期
+    private double open; // 开盘价
+    private double high; // 最高价
+    private double low; // 最低价
     private double close; // 收盘价
+    private double pre_close; // 昨收价
+    private double change; // 涨跌额
     private double pct_chg; // 涨跌幅
     private double vol; // 成交量(手)
     private double amount; // 成交额(千元)
     /********** 基本信息-股票-每日指标 **********/
     /********** 基本信息-股票-个股资金流向 **********/
-    /********** 基本信息-股票-备用行情 **********/
 
     /********** 基本信息-北向资金-资金流向 **********/
     private int bx_used; // 当日是否有北向资金: 1有, -1无效
-
     /********** 基本信息-北向资金-十大成交股 **********/
-    private double bx_net_amount; // 净成交金额
-
+    private double bx_rank; // 资金排名
+    private double bx_amount; // 成交金额(元)
+    private double bx_net_amount; // 净成交金额(元)
+    private double bx_buy; // 买入金额(元)
+    private double bx_sell; // 卖出金额(元)
     /********** 基本信息-北向资金-持股明细 **********/
     private int bx_status; // 开始结束状态: 1开始,-1结束,0维持原状态
-    private double bx_ratio; // 持仓比例
+    private double bx_vol; // 持股数量(股)
+    private double bx_ratio; // 持股占比（%），占已发行股份百分比
+    /********** 基本信息-其他 **********/
+    private String end_date; // 交易日期
 
     /********** 扩展信息-北向资金-持股明细 **********/
     private double bx_avg_5; // 持仓比例5日平均
@@ -28,9 +37,6 @@ public class StockBean {
     private double bx_avg_20; // 持仓比例20日平均
     private double bx_avg_30; // 持仓比例30日平均
     private double bx_avg_60; // 持仓比例60日平均
-
-    /********** 基本信息-其他 **********/
-    private String end_date; // 交易日期
 
     /********** 策略信息 **********/
     private int status; // 买卖状态: 1买,-1卖,0不买不卖
@@ -173,4 +179,83 @@ public class StockBean {
         this.bx_net_amount = bx_net_amount;
     }
 
+    public double getOpen() {
+        return open;
+    }
+
+    public void setOpen(double open) {
+        this.open = open;
+    }
+
+    public double getHigh() {
+        return high;
+    }
+
+    public void setHigh(double high) {
+        this.high = high;
+    }
+
+    public double getLow() {
+        return low;
+    }
+
+    public void setLow(double low) {
+        this.low = low;
+    }
+
+    public double getPre_close() {
+        return pre_close;
+    }
+
+    public void setPre_close(double pre_close) {
+        this.pre_close = pre_close;
+    }
+
+    public double getChange() {
+        return change;
+    }
+
+    public void setChange(double change) {
+        this.change = change;
+    }
+
+    public double getBx_rank() {
+        return bx_rank;
+    }
+
+    public void setBx_rank(double bx_rank) {
+        this.bx_rank = bx_rank;
+    }
+
+    public double getBx_amount() {
+        return bx_amount;
+    }
+
+    public void setBx_amount(double bx_amount) {
+        this.bx_amount = bx_amount;
+    }
+
+    public double getBx_buy() {
+        return bx_buy;
+    }
+
+    public void setBx_buy(double bx_buy) {
+        this.bx_buy = bx_buy;
+    }
+
+    public double getBx_sell() {
+        return bx_sell;
+    }
+
+    public void setBx_sell(double bx_sell) {
+        this.bx_sell = bx_sell;
+    }
+
+    public double getBx_vol() {
+        return bx_vol;
+    }
+
+    public void setBx_vol(double bx_vol) {
+        this.bx_vol = bx_vol;
+    }
 }
