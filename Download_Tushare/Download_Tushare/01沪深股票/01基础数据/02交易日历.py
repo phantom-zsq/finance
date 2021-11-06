@@ -23,5 +23,5 @@ df = pro.query('trade_cal', exchange='INE', start_date='19900101', end_date='202
 
 # -------------------common end-------------------
 # load to mysql
-res = df.to_sql('trade_cal', engine, index=False, if_exists='append', chunksize=10000)
+res = df.to_sql('trade_cal2', engine, index=False, if_exists='append', chunksize=10000)
 print(res)
