@@ -14,7 +14,7 @@ pro = ts.pro_api()
 
 # -------------------common start-------------------
 
-#获取可转债基础信息列表20211220
+#获取可转债基础信息列表20211231
 df = pro.cb_basic(fields="ts_code,bond_full_name,bond_short_name,cb_code,stk_code,stk_short_name,maturity,par,issue_price,issue_size,remain_size,value_date,maturity_date,rate_type,coupon_rate,add_rate,pay_per_year,list_date,delist_date,exchange,conv_start_date,conv_end_date,first_conv_price,conv_price,rate_clause,put_clause,maturity_put_price,call_clause,reset_clause,conv_clause,guarantor,guarantee_type,issue_rating,newest_rating,rating_comp")
 
 # -------------------common end-------------------

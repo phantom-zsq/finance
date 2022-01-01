@@ -14,7 +14,7 @@ pro = ts.pro_api()
 
 # -------------------common start-------------------
 
-#获取可转债发行数据，自定义字段20211220
+#获取可转债发行数据，自定义字段20211231
 df = pro.cb_issue(fields='ts_code,ann_date,res_ann_date,plan_issue_size,issue_size,issue_price,issue_type,issue_cost,onl_code,onl_name,onl_date,onl_size,onl_pch_vol,onl_pch_num,onl_pch_excess,onl_winning_rate,shd_ration_code,shd_ration_name,shd_ration_date,shd_ration_record_date,shd_ration_pay_date,shd_ration_price,shd_ration_ratio,shd_ration_size,shd_ration_vol,shd_ration_num,shd_ration_excess,offl_size,offl_deposit,offl_pch_vol,offl_pch_num,offl_pch_excess,offl_winning_rate,lead_underwriter,lead_underwriter_vol')
 
 # -------------------common end-------------------
