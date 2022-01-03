@@ -108,6 +108,7 @@ public class DownloadFswOfZjhUtils {
         int q = 0;
         int w = 0;
         int d = 0;
+        List<FswBean> result = new ArrayList<FswBean>();
         for(FswBean bean : list){
             String publishedTimeStr = bean.getPublishedTimeStr();
             String day = bean.getDay();
@@ -131,8 +132,16 @@ public class DownloadFswOfZjhUtils {
                     w++;
                     c++;
                     String companys = m.group(0);
-                    if(companys.contains("可转债")){
-                        System.out.println(day + ": " + date + ": " + companys);
+                    if(companys.contains("（可转债）")){
+                        FswBean fsw = new FswBean();
+                        fsw.setPublishedTimeStr(date);
+                        fsw.setDay(day);
+                        fsw.setTitle(title);
+                        fsw.setType("可转债");
+                        fsw.setYear(year);
+                        fsw.setTimes(times);
+                        fsw.setContent(companys.replaceAll("（可转债）",""));
+                        result.add(fsw);
                     }
                 }
                 if(c>0){
@@ -144,6 +153,11 @@ public class DownloadFswOfZjhUtils {
                 j++;
             }
         }
+        session.createDataFrame(result, FswBean.class)
+                .write()
+                .mode(SaveMode.Append)
+                .jdbc(properties.getProperty("url"), "manual_zjh_fsw_date", properties);
+
         System.out.println("工作会议: " + i);
         System.out.println("取消: " + k);
         System.out.println("未匹配到公司的工作会议: " + d);
