@@ -16,6 +16,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * 手动更新缺失的cb_issue表数据
+ */
 public class ManualUpdateCbIssue {
 
     private static SparkSession session;
