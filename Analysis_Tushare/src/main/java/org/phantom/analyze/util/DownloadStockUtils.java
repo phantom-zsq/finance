@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * 下载股价和北向资金到excel中
+ */
 public class DownloadStockUtils {
 
     private static SparkSession session;
