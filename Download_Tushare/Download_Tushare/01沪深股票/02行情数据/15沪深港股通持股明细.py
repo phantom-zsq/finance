@@ -14,7 +14,7 @@ pro = ts.pro_api()
 
 # -------------------common start-------------------
 # 此接口最早时间是20160629, 所以缺384天数据
-basic_df = pd.read_sql_query('select trade_date from moneyflow_hsgt where trade_date>=\'20200717\' and trade_date<\'20200718\' order by trade_date', engine)
+basic_df = pd.read_sql_query('select trade_date from moneyflow_hsgt where trade_date>=\'20210101\' and trade_date<\'20220101\' order by trade_date', engine)
 for index, row in basic_df.iterrows():
     print(index, row[0])
     try:

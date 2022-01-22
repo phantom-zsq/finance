@@ -14,7 +14,7 @@ pro = ts.pro_api()
 
 # -------------------common start-------------------
 # 接口最早时间是20141117, 3天无数据(20180806,20190306,20201111), 1天只有10条数据(20190409)
-basic_df = pd.read_sql_query('select trade_date from moneyflow_hsgt where trade_date>=\'20190306\' and trade_date<\'20190307\' order by trade_date', engine)
+basic_df = pd.read_sql_query('select trade_date from moneyflow_hsgt where trade_date>=\'20210101\' and trade_date<\'20220101\' order by trade_date', engine)
 for index, row in basic_df.iterrows():
     print(index, row[0])
     try:
