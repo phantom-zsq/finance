@@ -17,6 +17,7 @@ pro = ts.pro_api()
 basic_df = pd.read_sql_query('select ts_code from manual_cb_issue order by ts_code desc', engine)
 for index, row in basic_df.iterrows():
     print(index, row[0])
+    time.sleep(15)
     try:
         df = pro.cb_daily(ts_code=row[0], start_date='19900101', end_date='19970101')
         res = df.to_sql('cb_daily', engine, index=False, if_exists='append', chunksize=10000)
@@ -37,6 +38,6 @@ for index, row in basic_df.iterrows():
         df = pro.cb_daily(ts_code=row[0], start_date='20180101', end_date='20220101')
     except Exception:
         print('exception: ' + row[0])
+        continue
     res = df.to_sql('cb_daily', engine, index=False, if_exists='append', chunksize=10000)
     print(res)
-    time.sleep(15)

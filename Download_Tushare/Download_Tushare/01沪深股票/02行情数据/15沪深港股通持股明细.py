@@ -17,11 +17,11 @@ pro = ts.pro_api()
 basic_df = pd.read_sql_query('select trade_date from moneyflow_hsgt where trade_date>=\'20210101\' and trade_date<\'20220101\' order by trade_date', engine)
 for index, row in basic_df.iterrows():
     print(index, row[0])
+    time.sleep(30)
     try:
         df = pro.query('hk_hold', trade_date=row[0])
     except Exception:
         print('exception: ' + row[0])
-        df = pro.query('hk_hold', trade_date=row[0])
+        continue
     res = df.to_sql('hk_hold', engine, index=False, if_exists='append', chunksize=10000)
     print(res)
-    time.sleep(30)
