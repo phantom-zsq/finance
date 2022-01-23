@@ -14,11 +14,14 @@ pro = ts.pro_api()
 
 # -------------------common start-------------------
 
-#df = pro.query('stock_basic', exchange='', list_status='L', fields='ts_code,symbol,name,area,industry,fullname,enname,cnspell,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
-#df = pro.query('stock_basic', exchange='', list_status='D', fields='ts_code,symbol,name,area,industry,fullname,enname,cnspell,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
-df = pro.query('stock_basic', exchange='', list_status='P', fields='ts_code,symbol,name,area,industry,fullname,enname,cnspell,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
+df = pro.query('stock_basic', exchange='', list_status='L', fields='ts_code,symbol,name,area,industry,fullname,enname,cnspell,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
+res = df.to_sql('stock_basic', engine, index=False, if_exists='append', chunksize=10000)
+print(res)
 
-# -------------------common end-------------------
-# load to mysql
+df = pro.query('stock_basic', exchange='', list_status='D', fields='ts_code,symbol,name,area,industry,fullname,enname,cnspell,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
+res = df.to_sql('stock_basic', engine, index=False, if_exists='append', chunksize=10000)
+print(res)
+
+df = pro.query('stock_basic', exchange='', list_status='P', fields='ts_code,symbol,name,area,industry,fullname,enname,cnspell,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
 res = df.to_sql('stock_basic', engine, index=False, if_exists='append', chunksize=10000)
 print(res)
