@@ -1,5 +1,6 @@
 package org.phantom.analyze.statistics;
 
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.phantom.analyze.bean.BoneBean;
@@ -18,7 +19,40 @@ public class Bond {
     }
 
     public static void main(String[] args) throws Exception {
-        new Bond().daxin();
+        Bond bond = new Bond();
+        // 打新
+        //bond.daxin();
+        // 可转债买卖, 统计1-16周的涨跌情况
+        bond.zhou();
+    }
+
+    public void zhou() throws Exception {
+        new LoadOracleData().load();
+        Dataset<Row> rows = session.sql("select *,row_number() over(partition by ts_code order by trade_date) as rank from cb_daily");
+        rows.createOrReplaceTempView("cb_daily_rank");
+        rows.cache();
+        rows.count();
+        //int[] start = {1,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80};
+        int[] start = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+        for(int m=0; m<start.length-1; m++){
+            int num1 = start[m]+1;
+            for(int n=m+1; n<start.length; n++) {
+                int num2 = start[n];
+                System.out.print(num1+": "+num2);
+                List<Row> result = session.sql("" +
+                        "select sum(score),avg(score),count(*),sum(case when score>=0 then 1 else 0 end),sum(case when score>=0 then 1 else 0 end) * 100 / count(*) " +
+                        "from(" +
+                        "select cb_basic_rank_1.ts_code,(cb_basic_rank_2.close-cb_basic_rank_1.open) * 100 / cb_basic_rank_1.open as score " +
+                        "from (select * from cb_daily_rank where rank="+num1+") cb_basic_rank_1 " +
+                        "inner join (select * from cb_daily_rank where rank="+num2+") cb_basic_rank_2 on cb_basic_rank_1.ts_code=cb_basic_rank_2.ts_code " +
+                        ") a"
+                ).collectAsList();
+                for (Row row : result) {
+                    int i = 0;
+                    System.out.println(" " + row.get(i++)+": "+row.get(i++)+": "+row.get(i++)+": "+row.get(i++)+": "+row.get(i++));
+                }
+            }
+        }
     }
 
     public void daxin() throws Exception {
