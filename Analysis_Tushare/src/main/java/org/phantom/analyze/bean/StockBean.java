@@ -15,7 +15,6 @@ public class StockBean {
     private double amount; // 成交额(千元)
     /********** 基本信息-股票-每日指标 **********/
     /********** 基本信息-股票-个股资金流向 **********/
-
     /********** 基本信息-北向资金-资金流向 **********/
     private int bx_used; // 当日是否有北向资金: 1有, -1无效
     /********** 基本信息-北向资金-十大成交股 **********/
@@ -37,6 +36,14 @@ public class StockBean {
     private double bx_avg_20; // 持仓比例20日平均
     private double bx_avg_30; // 持仓比例30日平均
     private double bx_avg_60; // 持仓比例60日平均
+
+    /********** 扩展信息-趋势 **********/
+    private double trend_long; // 长期趋势(1年/240天), 1上升0震荡-1下降
+    private double trend_medium; // 中期趋势(3个月/60天), 1上升0震荡-1下降
+    private double trend_short; // 短期趋势(2周/10天), 1上升0震荡-1下降
+    /********** 扩展信息-支撑压力位 **********/
+
+    /********** 扩展信息-macd **********/
 
     /********** 策略信息 **********/
     private int status; // 买卖状态: 1买,-1卖,0不买不卖
@@ -257,5 +264,29 @@ public class StockBean {
 
     public void setBx_vol(double bx_vol) {
         this.bx_vol = bx_vol;
+    }
+
+    public double getTrend_long() {
+        return trend_long;
+    }
+
+    public void setTrend_long(double trend_long) {
+        this.trend_long = trend_long;
+    }
+
+    public double getTrend_medium() {
+        return trend_medium;
+    }
+
+    public void setTrend_medium(double trend_medium) {
+        this.trend_medium = trend_medium;
+    }
+
+    public double getTrend_short() {
+        return trend_short;
+    }
+
+    public void setTrend_short(double trend_short) {
+        this.trend_short = trend_short;
     }
 }
