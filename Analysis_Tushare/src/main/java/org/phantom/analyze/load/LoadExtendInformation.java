@@ -5,10 +5,7 @@ import org.apache.spark.sql.SparkSession;
 import org.phantom.analyze.bean.StockBean;
 import org.phantom.analyze.common.Config;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class LoadExtendInformation {
 
@@ -40,7 +37,29 @@ public class LoadExtendInformation {
     }
 
     private void trend(Map<String, List<StockBean>> map) throws Exception {
-
+        Map<String, Integer> li = new HashMap<String, Integer>();
+        for(String tsCode : map.keySet()){
+            List<StockBean> list = map.get(tsCode);
+            for (int i=0; i<list.size(); i++) {
+                StockBean bean = list.get(i);
+                StockBean bean10 = list.get(i-10 > 0 ? i-10 : 0);
+                StockBean bean60 = list.get(i-60 > 0 ? i-60 : 0);
+                StockBean bean240 = list.get(i-240 > 0 ? i-240 : 0);
+                bean.setTrend_short(calTrend(bean10.getClose(),bean.getClose(),0.05));
+                bean.setTrend_medium(calTrend(bean60.getClose(),bean.getClose(),0.15));
+                bean.setTrend_long(calTrend(bean240.getClose(),bean.getClose(),0.3));
+                String str = bean.getTrend_long() + ": " + bean.getTrend_medium() + ": " + bean.getTrend_short();
+                System.out.println(bean.getTrade_date() + ": " + str);
+                if(li.containsKey(str)){
+                    li.put(str, li.get(str)+1);
+                }else{
+                    li.put(str, 1);
+                }
+            }
+            for(String key : li.keySet()){
+                System.out.println(key + ": " + li.get(key));
+            }
+        }
     }
 
     private void resistenceAndSupportPosition(Map<String, List<StockBean>> map) throws Exception {
@@ -49,6 +68,19 @@ public class LoadExtendInformation {
 
     private void macd(Map<String, List<StockBean>> map) throws Exception {
 
+    }
+
+    private double calTrend(double close1, double close2, double x) throws Exception {
+        double rate = close2 / close1;
+        double maxRate = 1+x;
+        double minRate = 1 / (1+x);
+        if(rate < minRate){
+            return -1; // 下降趋势
+        }else if(rate > maxRate){
+            return 1; // 上升趋势
+        }else{
+            return 0; // 盘整趋势
+        }
     }
 
     private void setAvg(Map<String, List<StockBean>> map, int num) throws Exception {
