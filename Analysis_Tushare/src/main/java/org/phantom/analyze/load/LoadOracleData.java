@@ -23,9 +23,6 @@ public class LoadOracleData {
         // A股截止到20201231的4265支股票复权行情
         Dataset<Row> proBar = session.read().jdbc(properties.getProperty("url"), "(select * from pro_bar) tt", properties);
         proBar.createOrReplaceTempView("pro_bar");
-        // A股截止到20201231的2319支沪深股通成分股
-        Dataset<Row> hkHoldDS = session.read().jdbc(properties.getProperty("url"), "(select * from hk_hold_statis where ts_code!='000043.SZ' and (ts_code like '%SH' or ts_code like '%SZ')) tt", properties);
-        hkHoldDS.createOrReplaceTempView("hs_const");
         // 沪深港通资金流向
         Dataset<Row> moneyflowHsgt = session.read().jdbc(properties.getProperty("url"), "(select * from moneyflow_hsgt where trade_date>='20160629') tt", properties);
         moneyflowHsgt.createOrReplaceTempView("moneyflow_hsgt");
