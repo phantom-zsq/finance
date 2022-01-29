@@ -35,11 +35,23 @@ public class LoadOracleData {
         // 沪深港股通成交明细
         Dataset<Row> hkHold = session.read().jdbc(properties.getProperty("url"), "(select * from hk_hold where ts_code!='000043.SZ' and exchange in('SH','SZ')) tt", properties);
         hkHold.createOrReplaceTempView("hk_hold");
+        // 可转债发行信息
+        Dataset<Row> cbIssue = session.read().jdbc(properties.getProperty("url"), "(select * from manual_cb_issue) tt", properties);
+        cbIssue.createOrReplaceTempView("cb_issue");
         // 可转债基本信息
-        Dataset<Row> cbBasic = session.read().jdbc(properties.getProperty("url"), "(select * from cb_basic) tt", properties);
+        Dataset<Row> cbBasic = session.read().jdbc(properties.getProperty("url"), "(select * from manual_cb_basic) tt", properties);
         cbBasic.createOrReplaceTempView("cb_basic");
         // 可转债行情
         Dataset<Row> cbDaily = session.read().jdbc(properties.getProperty("url"), "(select * from cb_daily) tt", properties);
         cbDaily.createOrReplaceTempView("cb_daily");
+        // 可转债转股价变动情况
+        Dataset<Row> cbPriceChg = session.read().jdbc(properties.getProperty("url"), "(select * from cb_price_chg) tt", properties);
+        cbPriceChg.createOrReplaceTempView("cb_price_chg");
+        // 可转债各阶段日期
+        Dataset<Row> manualCbDate = session.read().jdbc(properties.getProperty("url"), "(select * from manual_cb_date) tt", properties);
+        manualCbDate.createOrReplaceTempView("manual_cb_date");
+        // 可转债溢价率映射表
+        Dataset<Row> manualCbPremium = session.read().jdbc(properties.getProperty("url"), "(select * from manual_cb_premium) tt", properties);
+        manualCbPremium.createOrReplaceTempView("manual_cb_premium");
     }
 }
