@@ -52,8 +52,8 @@ public class ManualQueryStockShare {
                 String url = "http://emweb.securities.eastmoney.com/PC_HSF10/OperationsRequired/PageAjax?code="+code;
                 String json = Jsoup.connect(url).ignoreContentType(true).get().text();
                 JSONObject obj = JSON.parseObject(JSON.parseObject(json).getJSONArray("zxzb").get(0)+"");
-                Double totalShare = Double.valueOf(obj.get("TOTAL_SHARE").toString()) * 10000;
-                Double freeShare = Double.valueOf(obj.get("FREE_SHARE").toString()) * 10000;
+                Double totalShare = Double.valueOf(obj.get("TOTAL_SHARE").toString());
+                Double freeShare = Double.valueOf(obj.get("FREE_SHARE").toString());
                 CbPremiumBean bean = new CbPremiumBean();
                 bean.setTs_code(tsCode);
                 bean.setStk_code(stkCode);
