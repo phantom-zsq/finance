@@ -50,5 +50,8 @@ public class LoadOracleData {
         // 可转债溢价率映射表
         Dataset<Row> manualCbPremium = session.read().jdbc(properties.getProperty("url"), "(select * from manual_cb_premium) tt", properties);
         manualCbPremium.createOrReplaceTempView("manual_cb_premium");
+        // 可转债评级
+        Dataset<Row> manualCbNewestRating = session.read().jdbc(properties.getProperty("url"), "(select * from manual_cb_newest_rating) tt", properties);
+        manualCbNewestRating.createOrReplaceTempView("manual_cb_newest_rating");
     }
 }
