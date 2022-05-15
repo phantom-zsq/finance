@@ -11,6 +11,10 @@ public class AmountOfBond {
     private static SparkSession session;
     private static Properties properties;
 
+    private static Map<String, List<String>> exponentialMap = new HashMap<String, List<String>>();
+    private static Map<String, List<String>> increaseMap = new HashMap<String, List<String>>();
+    private static Map<String, List<String>> hongSanBingMap = new HashMap<String, List<String>>();
+
     public AmountOfBond() {
         this.session = Config.session;
         this.properties = Config.properties;
@@ -23,17 +27,144 @@ public class AmountOfBond {
 
     public void amount() throws Exception {
         new LoadOracleData().load();
-        List<Row> rows = session.sql("select a.ts_code,a.trade_date,a.open,a.high,a.low,a.close,a.amount * 10000 as amount,b.issue_size * 100000000 as issue_size from cb_daily a inner join cb_issue b on a.ts_code=b.ts_code where a.open > 0 order by a.ts_code,a.trade_date").collectAsList();
+        Map<String, List<Row>> map = getOriginalMap();
         // issue size strategy
         //issueSize(rows);
         // moving average strategy
-        movingAverage(rows);
+        movingAverage(map);
         // exponential function strategy
-        exponentialFunction(rows);
+        exponentialFunction(map);
         // increase strategy
-        increase(rows);
+        increase(map);
         // hong san bing strategy
-        hongSanBing(rows);
+        hongSanBing(map);
+        // common condition about below
+        strategy(map);
+    }
+
+    private void strategy(Map<String, List<Row>> map) throws Exception {
+        for(String ts_code : exponentialMap.keySet()){
+            //System.out.println(ts_code+":"+exponentialMap.get(ts_code));
+        }
+        for(String ts_code : increaseMap.keySet()){
+            //System.out.println(ts_code+":"+increaseMap.get(ts_code));
+        }
+        for(String ts_code : hongSanBingMap.keySet()){
+            //System.out.println(ts_code+":"+hongSanBingMap.get(ts_code));
+        }
+        int count = 4;
+        for(int k=1; k<=40; k++){
+            for(int j=k; j<=40; j++){
+                double sum = 0;
+                int success = 0;
+                int all = 0;
+                for(String ts_code : hongSanBingMap.keySet()){
+                    List<String> list = hongSanBingMap.get(ts_code);
+                    for(String result : list){
+                        String[] str = result.split(":");
+                        Long num = Long.valueOf(str[0]);
+                        String startDate = str[1];
+                        String endDate = str[2];
+                        if(num >= count){
+                            String end = getEndDate(ts_code,startDate,count,map);
+                            if(contain(ts_code,startDate,end)){
+                                //System.out.println(ts_code+":"+end);
+                                double tmp = buy(ts_code,end,map,k,j);
+                                sum += tmp;
+                                all++;
+                                if(tmp > 0){
+                                    success++;
+                                }
+                            }
+                        }
+                    }
+                }
+                System.out.println(k+":"+j+":"+sum+":"+success+":"+all);
+            }
+        }
+
+    }
+    private double buy(String ts_code,String start,Map<String, List<Row>> map,int k, int j) throws Exception {
+        List<Row> list = map.get(ts_code);
+        for(int m=0; m<list.size(); m++){
+            Row row = list.get(m);
+            int i = 1;
+            String trade_date = row.getString(i++);
+            Double open = row.getDouble(i++);
+            Double high = row.getDouble(i++);
+            Double low = row.getDouble(i++);
+            Double close = row.getDouble(i++);
+            Double amount = row.getDouble(i++);
+            Double issue_size = row.getDouble(i++);
+            if(start.equals(trade_date)){
+                int buy = m+k;
+                int sell = m+j < list.size() ? m+j : list.size()-1;
+                if(buy < list.size()){
+                    Double buyOpen = list.get(buy).getDouble(2);
+                    Double sellClose = list.get(sell).getDouble(5);
+                    return (sellClose-buyOpen)/buyOpen;
+                }
+
+            }
+        }
+        return 0;
+    }
+
+    private String getEndDate(String ts_code,String start,int count,Map<String, List<Row>> map) throws Exception {
+        List<Row> list = map.get(ts_code);
+        for(int m=0; m<list.size(); m++){
+            Row row = list.get(m);
+            int i = 1;
+            String trade_date = row.getString(i++);
+            Double open = row.getDouble(i++);
+            Double high = row.getDouble(i++);
+            Double low = row.getDouble(i++);
+            Double close = row.getDouble(i++);
+            Double amount = row.getDouble(i++);
+            Double issue_size = row.getDouble(i++);
+            if(start.equals(trade_date)){
+                int j = m+count-1;
+                if(j < list.size()){
+                    return list.get(j).getString(1);
+                }else{
+                    return "";
+                }
+            }
+        }
+        return "";
+    }
+
+    private boolean contain(String ts_code,String start,String end) throws Exception {
+        boolean isContain = false;
+        List<String> list = new ArrayList<String>();
+        list = increaseMap.get(ts_code);
+        for(String result : list){
+            String[] str = result.split(":");
+            Long num = Long.valueOf(str[0]);
+            String startDate = str[1];
+            String endDate = str[2];
+            if(start.compareTo(startDate)>=0 && end.compareTo(endDate)<=0){
+                isContain = true;
+                break;
+            }
+        }
+        return isContain;
+    }
+
+    private Map<String, List<Row>> getOriginalMap() throws Exception {
+        List<Row> rows = session.sql("select a.ts_code,a.trade_date,a.open,a.high,a.low,a.close,a.amount * 10000 as amount,b.issue_size * 100000000 as issue_size from cb_daily a inner join cb_issue b on a.ts_code=b.ts_code where a.open > 0 order by a.ts_code,a.trade_date").collectAsList();
+        Map<String, List<Row>> map = new HashMap<String, List<Row>>();
+        for(Row row : rows){
+            int i = 0;
+            String ts_code = row.getString(i++);
+            List<Row> list = new ArrayList<Row>();
+            if(map.containsKey(ts_code)){
+                list = map.get(ts_code);
+            }
+            list.add(row);
+            map.put(ts_code,list);
+        }
+        return map;
     }
 
     private void issueSize(List<Row> rows) throws Exception {
@@ -152,23 +283,11 @@ public class AmountOfBond {
         return rate;
     }
 
-    private void movingAverage(List<Row> rows) throws Exception {
+    private void movingAverage(Map<String, List<Row>> map) throws Exception {
 
     }
 
-    private void exponentialFunction(List<Row> rows) throws Exception {
-        Map<String, List<Row>> map = new HashMap<String, List<Row>>();
-        for(Row row : rows){
-            int i = 0;
-            String ts_code = row.getString(i++);
-            if(map.containsKey(ts_code)){
-                map.get(ts_code).add(row);
-            }else{
-                List<Row> list = new ArrayList<Row>();
-                list.add(row);
-                map.put(ts_code,list);
-            }
-        }
+    private void exponentialFunction(Map<String, List<Row>> map) throws Exception {
         for(String ts_code : map.keySet()){
             List<Row> list = map.get(ts_code);
             for(int m=0; m<list.size(); m++){
@@ -194,13 +313,23 @@ public class AmountOfBond {
                     if(amount_new >= amount * 2){
                         amount = amount_new;
                         if(n == list.size()-1){
-                            System.out.println(ts_code+": "+(n+1-m)+": "+trade_date+": "+trade_date_new);
+                            List<String> li = new ArrayList<String>();
+                            if(exponentialMap.containsKey(ts_code)){
+                                li = exponentialMap.get(ts_code);
+                            }
+                            li.add((n+1-m)+":"+trade_date+":"+trade_date_new);
+                            exponentialMap.put(ts_code,li);
                             m = n;
                         }
                         continue;
                     }else{
                         if(n-m > 1){
-                            System.out.println(ts_code+": "+(n-m)+": "+trade_date+": "+trade_date_new);
+                            List<String> li = new ArrayList<String>();
+                            if(exponentialMap.containsKey(ts_code)){
+                                li = exponentialMap.get(ts_code);
+                            }
+                            li.add((n-m)+":"+trade_date+":"+list.get(n-1).getString(1));
+                            exponentialMap.put(ts_code,li);
                             m = n - 1;
                         }
                         break;
@@ -210,11 +339,112 @@ public class AmountOfBond {
         }
     }
 
-    private void increase(List<Row> rows) throws Exception {
-
+    private void increase(Map<String, List<Row>> map) throws Exception {
+        for(String ts_code : map.keySet()){
+            List<Row> list = map.get(ts_code);
+            for(int m=0; m<list.size(); m++){
+                Row row = list.get(m);
+                int i = 1;
+                String trade_date = row.getString(i++);
+                Double open = row.getDouble(i++);
+                Double high = row.getDouble(i++);
+                Double low = row.getDouble(i++);
+                Double close = row.getDouble(i++);
+                Double amount = row.getDouble(i++);
+                Double issue_size = row.getDouble(i++);
+                for(int n=m+1; n<list.size(); n++){
+                    Row row_new = list.get(n);
+                    int j = 1;
+                    String trade_date_new = row_new.getString(j++);
+                    Double open_new = row_new.getDouble(j++);
+                    Double high_new = row_new.getDouble(j++);
+                    Double low_new = row_new.getDouble(j++);
+                    Double close_new = row_new.getDouble(j++);
+                    Double amount_new = row_new.getDouble(j++);
+                    Double issue_size_new = row_new.getDouble(j++);
+                    if(amount_new >= amount){
+                        amount = amount_new;
+                        if(n == list.size()-1){
+                            List<String> li = new ArrayList<String>();
+                            if(increaseMap.containsKey(ts_code)){
+                                li = increaseMap.get(ts_code);
+                            }
+                            li.add((n+1-m)+":"+trade_date+":"+trade_date_new);
+                            increaseMap.put(ts_code,li);
+                            m = n;
+                        }
+                        continue;
+                    }else{
+                        if(n-m > 1){
+                            List<String> li = new ArrayList<String>();
+                            if(increaseMap.containsKey(ts_code)){
+                                li = increaseMap.get(ts_code);
+                            }
+                            li.add((n-m)+":"+trade_date+":"+list.get(n-1).getString(1));
+                            increaseMap.put(ts_code,li);
+                            m = n - 1;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 
-    private void hongSanBing(List<Row> rows) throws Exception {
-
+    private void hongSanBing(Map<String, List<Row>> map) throws Exception {
+        for(String ts_code : map.keySet()){
+            List<Row> list = map.get(ts_code);
+            for(int m=0; m<list.size(); m++){
+                Row row = list.get(m);
+                int i = 1;
+                String trade_date = row.getString(i++);
+                Double open = row.getDouble(i++);
+                Double high = row.getDouble(i++);
+                Double low = row.getDouble(i++);
+                Double close = row.getDouble(i++);
+                Double amount = row.getDouble(i++);
+                Double issue_size = row.getDouble(i++);
+                // change
+                if(close <= open){
+                    continue;
+                }
+                for(int n=m+1; n<list.size(); n++){
+                    Row row_new = list.get(n);
+                    int j = 1;
+                    String trade_date_new = row_new.getString(j++);
+                    Double open_new = row_new.getDouble(j++);
+                    Double high_new = row_new.getDouble(j++);
+                    Double low_new = row_new.getDouble(j++);
+                    Double close_new = row_new.getDouble(j++);
+                    Double amount_new = row_new.getDouble(j++);
+                    Double issue_size_new = row_new.getDouble(j++);
+                    // change
+                    if(close_new > open_new && open_new > close){
+                        close = close_new;
+                        if(n == list.size()-1){
+                            List<String> li = new ArrayList<String>();
+                            if(hongSanBingMap.containsKey(ts_code)){
+                                li = hongSanBingMap.get(ts_code);
+                            }
+                            li.add((n+1-m)+":"+trade_date+":"+trade_date_new);
+                            hongSanBingMap.put(ts_code,li);
+                            m = n;
+                        }
+                        continue;
+                    }else{
+                        if(n-m > 1){
+                            List<String> li = new ArrayList<String>();
+                            if(hongSanBingMap.containsKey(ts_code)){
+                                li = hongSanBingMap.get(ts_code);
+                            }
+                            li.add((n-m)+":"+trade_date+":"+list.get(n-1).getString(1));
+                            hongSanBingMap.put(ts_code,li);
+                            m = n - 1;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
