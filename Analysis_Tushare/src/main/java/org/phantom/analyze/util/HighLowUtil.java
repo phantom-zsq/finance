@@ -160,10 +160,10 @@ public class HighLowUtil {
         int min = i - time;
         int max = i + time;
         if(min < 0){
-            return null;
+            min = 0;
         }
         if(max >= size){
-            return null;
+            max = size -1;
         }
         value[0] = min;
         value[1] = max;
