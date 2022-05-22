@@ -148,7 +148,7 @@ public class FirstNDaysOfBond {
 
     public void printSummary(List<FirstNDaysOfBondBean> list) throws Exception {
         session.createDataFrame(list, FirstNDaysOfBondBean.class).createOrReplaceTempView("details");
-        session.sql("select count(*),sum(case when high_yield >= 0 then 1 else 0 end) as high_profit_count,sum(high_yield) as high_yield,sum(case when yield >= 0 then 1 else 0 end) as profit_count,sum(yield) as yield from details").show(false);
+        session.sql("select count(*),sum(case when high_yield >= 0 then 1 else 0 end) as high_profit_count,sum(high_yield) as high_yield,sum(case when yield >= 0 then 1 else 0 end) as profit_count,sum(yield) as yield,sum(case when yield >= 0 then yield else 0 end) as success_sum,sum(case when yield >= 0 then 0 else yield end) as fail_sum from details").show(false);
     }
 
     public void printDetails(List<FirstNDaysOfBondBean> list) throws Exception {
