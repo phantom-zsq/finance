@@ -13,6 +13,8 @@ public class AmountOfBond {
 
     private static Map<String, List<String>> exponentialMap = new HashMap<String, List<String>>();
     private static Map<String, List<String>> increaseMap = new HashMap<String, List<String>>();
+    private static Map<String, List<String>> averageExponentialMap = new HashMap<String, List<String>>();
+    private static Map<String, List<String>> averageIncreaseMap = new HashMap<String, List<String>>();
     private static Map<String, List<String>> hongSanBingMap = new HashMap<String, List<String>>();
 
     public AmountOfBond() {
@@ -30,12 +32,14 @@ public class AmountOfBond {
         Map<String, List<Row>> map = getOriginalMap();
         // issue size strategy
         //issueSize(rows);
-        // moving average strategy
-        movingAverage(map);
         // exponential function strategy
         exponentialFunction(map);
         // increase strategy
         increase(map);
+        // moving average strategy for exponential function
+        movingAverageExponentialFunction(map);
+        // moving average strategy for increase
+        movingAverageIncrease(map);
         // hong san bing strategy
         hongSanBing(map);
         // common condition about below
@@ -43,15 +47,6 @@ public class AmountOfBond {
     }
 
     private void strategy(Map<String, List<Row>> map) throws Exception {
-        for(String ts_code : exponentialMap.keySet()){
-            //System.out.println(ts_code+":"+exponentialMap.get(ts_code));
-        }
-        for(String ts_code : increaseMap.keySet()){
-            //System.out.println(ts_code+":"+increaseMap.get(ts_code));
-        }
-        for(String ts_code : hongSanBingMap.keySet()){
-            //System.out.println(ts_code+":"+hongSanBingMap.get(ts_code));
-        }
         int count = 4;
         for(int k=1; k<=40; k++){
             for(int j=k; j<=40; j++){
@@ -82,8 +77,8 @@ public class AmountOfBond {
                 System.out.println(k+":"+j+":"+sum+":"+success+":"+all);
             }
         }
-
     }
+
     private double buy(String ts_code,String start,Map<String, List<Row>> map,int k, int j) throws Exception {
         List<Row> list = map.get(ts_code);
         for(int m=0; m<list.size(); m++){
@@ -283,8 +278,128 @@ public class AmountOfBond {
         return rate;
     }
 
-    private void movingAverage(Map<String, List<Row>> map) throws Exception {
+    private void movingAverageExponentialFunction(Map<String, List<Row>> map) throws Exception {
+        for(String ts_code : map.keySet()){
+            List<Row> list = map.get(ts_code);
+            for(int m=0; m<list.size(); m++){
+                Row row = list.get(m);
+                int i = 1;
+                String trade_date = row.getString(i++);
+                Double open = row.getDouble(i++);
+                Double high = row.getDouble(i++);
+                Double low = row.getDouble(i++);
+                Double close = row.getDouble(i++);
+                Double amount = row.getDouble(i++);
+                Double issue_size = row.getDouble(i++);
+                amount = getAverage(list, m, 5);
+                for(int n=m+1; n<list.size(); n++){
+                    Row row_new = list.get(n);
+                    int j = 1;
+                    String trade_date_new = row_new.getString(j++);
+                    Double open_new = row_new.getDouble(j++);
+                    Double high_new = row_new.getDouble(j++);
+                    Double low_new = row_new.getDouble(j++);
+                    Double close_new = row_new.getDouble(j++);
+                    Double amount_new = row_new.getDouble(j++);
+                    Double issue_size_new = row_new.getDouble(j++);
+                    amount_new = getAverage(list, n, 5);
+                    if(amount_new >= amount * 2){
+                        amount = amount_new;
+                        if(n == list.size()-1){
+                            List<String> li = new ArrayList<String>();
+                            if(averageExponentialMap.containsKey(ts_code)){
+                                li = averageExponentialMap.get(ts_code);
+                            }
+                            li.add((n+1-m)+":"+trade_date+":"+trade_date_new);
+                            averageExponentialMap.put(ts_code,li);
+                            m = n;
+                        }
+                        continue;
+                    }else{
+                        if(n-m > 1){
+                            List<String> li = new ArrayList<String>();
+                            if(averageExponentialMap.containsKey(ts_code)){
+                                li = averageExponentialMap.get(ts_code);
+                            }
+                            li.add((n-m)+":"+trade_date+":"+list.get(n-1).getString(1));
+                            averageExponentialMap.put(ts_code,li);
+                            m = n - 1;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
+    private void movingAverageIncrease(Map<String, List<Row>> map) throws Exception {
+        for(String ts_code : map.keySet()){
+            List<Row> list = map.get(ts_code);
+            for(int m=0; m<list.size(); m++){
+                Row row = list.get(m);
+                int i = 1;
+                String trade_date = row.getString(i++);
+                Double open = row.getDouble(i++);
+                Double high = row.getDouble(i++);
+                Double low = row.getDouble(i++);
+                Double close = row.getDouble(i++);
+                Double amount = row.getDouble(i++);
+                Double issue_size = row.getDouble(i++);
+                amount = getAverage(list, m, 5);
+                for(int n=m+1; n<list.size(); n++){
+                    Row row_new = list.get(n);
+                    int j = 1;
+                    String trade_date_new = row_new.getString(j++);
+                    Double open_new = row_new.getDouble(j++);
+                    Double high_new = row_new.getDouble(j++);
+                    Double low_new = row_new.getDouble(j++);
+                    Double close_new = row_new.getDouble(j++);
+                    Double amount_new = row_new.getDouble(j++);
+                    Double issue_size_new = row_new.getDouble(j++);
+                    amount_new = getAverage(list, n, 5);
+                    if(amount_new >= amount){
+                        amount = amount_new;
+                        if(n == list.size()-1){
+                            List<String> li = new ArrayList<String>();
+                            if(averageIncreaseMap.containsKey(ts_code)){
+                                li = averageIncreaseMap.get(ts_code);
+                            }
+                            li.add((n+1-m)+":"+trade_date+":"+trade_date_new);
+                            averageIncreaseMap.put(ts_code,li);
+                            m = n;
+                        }
+                        continue;
+                    }else{
+                        if(n-m > 1){
+                            List<String> li = new ArrayList<String>();
+                            if(averageIncreaseMap.containsKey(ts_code)){
+                                li = averageIncreaseMap.get(ts_code);
+                            }
+                            li.add((n-m)+":"+trade_date+":"+list.get(n-1).getString(1));
+                            averageIncreaseMap.put(ts_code,li);
+                            m = n - 1;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private Double getAverage(List<Row> list, int index, int averageCount){
+        int start = 0;
+        int end = index;
+        int realCount = averageCount;
+        if(index < averageCount-1){
+            realCount = index + 1;
+        }else{
+            start = index - averageCount + 1;
+        }
+        Double result = 0.0;
+        for(int i=start; i<=end; i++){
+            result += list.get(i).getDouble(6);
+        }
+        return result/realCount;
     }
 
     private void exponentialFunction(Map<String, List<Row>> map) throws Exception {
