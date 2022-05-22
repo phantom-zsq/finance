@@ -50,9 +50,12 @@ public class AmountOfBond {
         int count = 4;
         for(int k=1; k<=40; k++){
             for(int j=k; j<=40; j++){
-                double sum = 0;
-                int success = 0;
-                int all = 0;
+                double allSum = 0;
+                double successSum = 0;
+                double failSum = 0;
+                int allCount = 0;
+                int successCount = 0;
+                int failCount = 0;
                 for(String ts_code : hongSanBingMap.keySet()){
                     List<String> list = hongSanBingMap.get(ts_code);
                     for(String result : list){
@@ -63,18 +66,21 @@ public class AmountOfBond {
                         if(num >= count){
                             String end = getEndDate(ts_code,startDate,count,map);
                             if(contain(ts_code,startDate,end)){
-                                //System.out.println(ts_code+":"+end);
                                 double tmp = buy(ts_code,end,map,k,j);
-                                sum += tmp;
-                                all++;
+                                allSum += tmp;
+                                allCount++;
                                 if(tmp > 0){
-                                    success++;
+                                    successSum += tmp;
+                                    successCount++;
+                                }else{
+                                    failSum += tmp;
+                                    failCount++;
                                 }
                             }
                         }
                     }
                 }
-                System.out.println(k+":"+j+":"+sum+":"+success+":"+all);
+                System.out.println(k+":"+j+":"+allSum+":"+successSum+":"+failSum+":"+allCount+":"+successCount+":"+failCount);
             }
         }
     }
@@ -97,9 +103,8 @@ public class AmountOfBond {
                 if(buy < list.size()){
                     Double buyOpen = list.get(buy).getDouble(2);
                     Double sellClose = list.get(sell).getDouble(5);
-                    return (sellClose-buyOpen)/buyOpen;
+                    return (sellClose-buyOpen)*100/buyOpen;
                 }
-
             }
         }
         return 0;
@@ -132,7 +137,9 @@ public class AmountOfBond {
     private boolean contain(String ts_code,String start,String end) throws Exception {
         boolean isContain = false;
         List<String> list = new ArrayList<String>();
-        list = increaseMap.get(ts_code);
+        if(averageIncreaseMap.containsKey(ts_code)){
+            list = averageIncreaseMap.get(ts_code);
+        }
         for(String result : list){
             String[] str = result.split(":");
             Long num = Long.valueOf(str[0]);
