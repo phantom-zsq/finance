@@ -47,7 +47,7 @@ public class AmountOfBond {
     }
 
     private void strategy(Map<String, List<Row>> map) throws Exception {
-        int count = 4;
+        int count = 2;
         for(int k=1; k<=40; k++){
             for(int j=k; j<=40; j++){
                 double allSum = 0;
@@ -137,6 +137,63 @@ public class AmountOfBond {
     private boolean contain(String ts_code,String start,String end) throws Exception {
         boolean isContain = false;
         List<String> list = new ArrayList<String>();
+        if(exponentialMap.containsKey(ts_code)){
+            list = exponentialMap.get(ts_code);
+        }
+        for(String result : list){
+            String[] str = result.split(":");
+            Long num = Long.valueOf(str[0]);
+            String startDate = str[1];
+            String endDate = str[2];
+            if(start.compareTo(startDate)>=0 && end.compareTo(endDate)<=0){
+                isContain = true;
+                break;
+            }
+        }
+        if(!isContain){
+            return false;
+        }else{
+            isContain = false;
+        }
+
+        if(increaseMap.containsKey(ts_code)){
+            list = increaseMap.get(ts_code);
+        }
+        for(String result : list){
+            String[] str = result.split(":");
+            Long num = Long.valueOf(str[0]);
+            String startDate = str[1];
+            String endDate = str[2];
+            if(start.compareTo(startDate)>=0 && end.compareTo(endDate)<=0){
+                isContain = true;
+                break;
+            }
+        }
+        if(!isContain){
+            return false;
+        }else{
+            isContain = false;
+        }
+
+        if(averageExponentialMap.containsKey(ts_code)){
+            list = averageExponentialMap.get(ts_code);
+        }
+        for(String result : list){
+            String[] str = result.split(":");
+            Long num = Long.valueOf(str[0]);
+            String startDate = str[1];
+            String endDate = str[2];
+            if(start.compareTo(startDate)>=0 && end.compareTo(endDate)<=0){
+                isContain = true;
+                break;
+            }
+        }
+        if(!isContain){
+            return false;
+        }else{
+            isContain = false;
+        }
+
         if(averageIncreaseMap.containsKey(ts_code)){
             list = averageIncreaseMap.get(ts_code);
         }
