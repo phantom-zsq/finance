@@ -310,6 +310,7 @@ public class TradingSystem {
         yingli = 0;
         kuisun = 0;
         jingli = 0;
+        tianshu = 0;
         sum = 10000;
     }
 }
