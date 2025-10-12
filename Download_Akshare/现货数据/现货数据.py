@@ -16,9 +16,12 @@ if __name__ == '__main__':
     for row in spot_price_table_qh_df.itertuples(index=False):  # index=False 不包含索引
         second_field = row[1]  # 元组的第二个元素
         try:
+            # 打印基本信息
+            print(second_field)
             # 可能出错的代码
             spot_price_qh_df = ak.spot_price_qh(symbol=f"{second_field}")
-            time.sleep(2)  # 间隔 2 秒
+            # 间隔 2 秒
+            time.sleep(2)
             # write to mysql
             res = spot_price_qh_df.to_sql('spot_price_qh', engine, index=False, if_exists='replace', chunksize=10000)
         except Exception as e:  # 捕获所有继承自Exception的异常

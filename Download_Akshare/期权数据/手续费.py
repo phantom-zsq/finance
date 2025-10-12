@@ -20,6 +20,8 @@ if __name__ == '__main__':
             print(first_field)
             # 可能出错的代码
             option_comm_info_df = ak.option_comm_info(symbol=f"{first_field}")
+            # 间隔 2 秒
+            time.sleep(2)
             # write to mysql
             res = option_comm_info_df.to_sql('option_comm_info', engine, index=False, if_exists='append', chunksize=10000)
         except Exception as e:  # 捕获所有继承自Exception的异常
