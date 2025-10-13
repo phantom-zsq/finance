@@ -14,6 +14,7 @@ if __name__ == '__main__':
     # today
     current_date = date.today()
     trade_date = current_date.strftime("%Y%m%d")
+    print(trade_date)
     # query data
     try:
         # 可能出错的代码
