@@ -1,5 +1,6 @@
 ----------期货数据----------
-futures_rule: 交易日历表
+calendar: 交易日历表
+futures_rule: 交易日历数据表
 futures_spot_price: 现货价格和基差
 
 ----------期权数据----------
