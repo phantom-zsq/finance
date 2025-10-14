@@ -2,6 +2,7 @@ import pandas as pd
 import akshare as ak
 from sqlalchemy import create_engine
 import time
+from datetime import date
 
 if __name__ == '__main__':
     # set option of pandas
@@ -10,6 +11,10 @@ if __name__ == '__main__':
     pd.set_option('display.width', 1000)  # 调整宽度避免换行
     # create mysql engine
     engine = create_engine('mysql+pymysql://root:12345678@localhost:3306/akshare')
+    # today
+    current_date = date.today()
+    trade_date = current_date.strftime("%Y%m%d")
+    print(trade_date)
     # query data
     option_comm_symbol_df = ak.option_comm_symbol()
     # 遍历每行元组，第一个元素（索引0）是第一个字段
@@ -20,6 +25,7 @@ if __name__ == '__main__':
             print(first_field)
             # 可能出错的代码
             option_comm_info_df = ak.option_comm_info(symbol=f"{first_field}")
+            option_comm_info_df['交易日'] = trade_date
             # 间隔 2 秒
             time.sleep(2)
             # write to mysql
