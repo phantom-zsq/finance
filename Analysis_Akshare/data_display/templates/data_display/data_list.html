@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>期货品种涨跌停板规则</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+        }
+        .refresh-info {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .loading {
+            color: #007bff;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>期货品种涨跌停板规则</h1>
+        <div class="refresh-info">
+            数据将每60秒自动刷新一次 | 上次刷新: <span id="last-refresh"></span>
+        </div>
+        <div class="loading" id="loading">正在刷新数据...</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>品种</th>
+                    <th>涨跌停板幅度(%)</th>
+                </tr>
+            </thead>
+            <tbody id="data-container">
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.品种 }}</td>
+                    <td>{{ record.涨跌停板幅度 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" style="text-align: center;">暂无数据，请检查数据库</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // 设置每10秒刷新一次数据
+        const refreshInterval = 60000;
+
+        function refreshData() {
+            const loading = document.getElementById('loading');
+            const dataContainer = document.getElementById('data-container');
+            const lastRefresh = document.getElementById('last-refresh');
+
+            loading.style.display = 'block';
+
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newData = doc.getElementById('data-container').innerHTML;
+
+                    dataContainer.innerHTML = newData;
+
+                    const now = new Date();
+                    lastRefresh.textContent = now.toLocaleString();
+                })
+                .catch(error => {
+                    console.error('刷新数据失败:', error);
+                })
+                .finally(() => {
+                    loading.style.display = 'none';
+                });
+        }
+
+        setInterval(refreshData, refreshInterval);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            document.getElementById('last-refresh').textContent = now.toLocaleString();
+        });
+    </script>
+</body>
+</html>
