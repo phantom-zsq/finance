@@ -33,4 +33,4 @@ select * from
 inner join
 (select 期权品种,`手续费(开+平)` from option_comm_info where 交易日='20251013') b
 on a.期权品种 = b.期权品种
-where a.`手续费(开+平)` = b.`手续费(开+平)`;
+where a.`手续费(开+平)` != b.`手续费(开+平)`;
