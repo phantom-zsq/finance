@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>期货品种涨跌停板规则</title>
+    <title>期权品种打分系统</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1300px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 5px;
         }
         .container {
             text-align: center;
@@ -24,7 +24,7 @@
             margin-top: 20px;
         }
         th, td {
-            padding: 12px;
+            padding: 5px;
             border: 1px solid #ddd;
             text-align: left;
         }
@@ -42,7 +42,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>期货品种涨跌停板规则</h1>
+        <h1>期权品种打分系统</h1>
         <div class="refresh-info">
             数据将每60秒自动刷新一次 | 上次刷新: <span id="last-refresh"></span>
         </div>
@@ -51,19 +51,59 @@
         <table>
             <thead>
                 <tr>
+                    <th>序号</th>
                     <th>品种</th>
-                    <th>涨跌停板幅度(%)</th>
+                    <th>当前价</th>
+                    <th>行权价</th>
+                    <th>涨跌停比例</th>
+                    <th>八八分位</th>
+                    <th>八四分位</th>
+                    <th>八三分位</th>
+                    <th>八二分位</th>
+                    <th>剩余天数</th>
+                    <th>深度分值</th>
+                    <th>权利金</th>
+                    <th>手续费</th>
+                    <th>保证金</th>
+                    <th>性价比</th>
+                    <th>性价比分值</th>
+                    <th>多空</th>
+                    <th>技术分值</th>
+                    <th>现货价</th>
+                    <th>期货价</th>
+                    <th>基差分值</th>
+                    <th>总分</th>
                 </tr>
             </thead>
             <tbody id="data-container">
                 {% for record in records %}
                 <tr>
+                    <td>{{ record.序号 }}</td>
                     <td>{{ record.品种 }}</td>
+                    <td>54365</td>
+                    <td>56777</td>
                     <td>{{ record.涨跌停板幅度 }}</td>
+                    <td>19</td>
+                    <td>16</td>
+                    <td>14</td>
+                    <td>12</td>
+                    <td>7</td>
+                    <td>89</td>
+                    <td>65345</td>
+                    <td>1.5</td>
+                    <td>65434</td>
+                    <td>45</td>
+                    <td>76</td>
+                    <td>长多短多</td>
+                    <td>67</td>
+                    <td>434545</td>
+                    <td>655444</td>
+                    <td>54</td>
+                    <td>76</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="2" style="text-align: center;">暂无数据，请检查数据库</td>
+                    <td colspan="22" style="text-align: center;">暂无数据，请检查数据库</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -71,7 +111,7 @@
     </div>
 
     <script>
-        // 设置每10秒刷新一次数据
+        // 设置每60秒刷新一次数据
         const refreshInterval = 60000;
 
         function refreshData() {
