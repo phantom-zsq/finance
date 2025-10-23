@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.db import connection
 from datetime import datetime
-
+import math
 
 def data_list(request):
     original_records = []
@@ -10,7 +10,7 @@ def data_list(request):
     try:
         with connection.cursor() as cursor:
             # 查询原始数据
-            cursor.execute("SELECT 品种, 涨跌停板幅度 FROM futures_rule LIMIT 8")
+            cursor.execute("SELECT 品种名称,`看涨合约-看涨期权合约` as 合约名称,行权价 FROM option_commodity_contract_table_sina where 交易日='20251021' LIMIT 8")
             columns = [col[0] for col in cursor.description]
             raw_data = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
@@ -19,6 +19,14 @@ def data_list(request):
             for index, item in enumerate(raw_data, start=1):
                 item["序号"] = index
                 item["当前时间"] = current_time
+                # 变量
+                item["当前价"] = 51500
+                item["涨跌停比例"] = 9
+                # 已确定
+                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01),1)
+                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2),1)
+                item["八三分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 3 / 8),1)
+                item["八二分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 4),1)
                 original_records.append(item)
 
             # 核心：按"涨跌停板幅度"排序（数值排序）

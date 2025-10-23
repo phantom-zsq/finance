@@ -52,7 +52,8 @@
             <thead>
                 <tr>
                     <th>序号</th>
-                    <th>品种</th>
+                    <th>品种名称</th>
+                    <th>合约名称</th>
                     <th>当前价</th>
                     <th>行权价</th>
                     <th>涨跌停比例</th>
@@ -79,27 +80,28 @@
                 {% for record in records %}
                 <tr>
                     <td>{{ record.序号 }}</td>
-                    <td>{{ record.品种 }}</td>
-                    <td>54365</td>
-                    <td>56777</td>
-                    <td>{{ record.涨跌停板幅度 }}</td>
-                    <td>19</td>
-                    <td>16</td>
-                    <td>14</td>
-                    <td>12</td>
-                    <td>7</td>
-                    <td>89</td>
-                    <td>65345</td>
-                    <td>1.5</td>
-                    <td>65434</td>
-                    <td>45</td>
-                    <td>76</td>
-                    <td>长多短多</td>
-                    <td>67</td>
-                    <td>434545</td>
-                    <td>655444</td>
-                    <td>54</td>
-                    <td>76</td>
+                    <td>{{ record.品种名称 }}</td>
+                    <td>{{ record.合约名称 }}</td>
+                    <td>{{ record.当前价 }}</td>
+                    <td>{{ record.行权价 }}</td>
+                    <td>{{ record.涨跌停比例 }}</td>
+                    <td>{{ record.八八分位 }}</td>
+                    <td>{{ record.八四分位 }}</td>
+                    <td>{{ record.八三分位 }}</td>
+                    <td>{{ record.八二分位 }}</td>
+                    <td>{{ record.剩余天数 }}</td>
+                    <td>{{ record.深度分值 }}</td>
+                    <td>{{ record.权利金 }}</td>
+                    <td>{{ record.手续费 }}</td>
+                    <td>{{ record.保证金 }}</td>
+                    <td>{{ record.性价比 }}</td>
+                    <td>{{ record.性价比分值 }}</td>
+                    <td>{{ record.多空 }}</td>
+                    <td>{{ record.技术分值 }}</td>
+                    <td>{{ record.现货价 }}</td>
+                    <td>{{ record.期货价 }}</td>
+                    <td>{{ record.基差分值 }}</td>
+                    <td>{{ record.总分 }}</td>
                 </tr>
                 {% empty %}
                 <tr>
