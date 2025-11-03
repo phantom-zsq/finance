@@ -61,12 +61,12 @@
                     <th>八四分位</th>
                     <th>八三分位</th>
                     <th>八二分位</th>
+                    <th>八一分位</th>
                     <th>剩余天数</th>
                     <th>深度分值</th>
                     <th>权利金</th>
                     <th>手续费</th>
-                    <th>保证金</th>
-                    <th>性价比</th>
+                    <th>保证金率</th>
                     <th>性价比分值</th>
                     <th>多空</th>
                     <th>技术分值</th>
@@ -79,7 +79,7 @@
             <tbody id="data-container">
                 {% for record in records %}
                 <tr>
-                    <td>{{ record.序号 }}</td>
+                    <td class="serial-number"></td>
                     <td>{{ record.品种名称 }}</td>
                     <td>{{ record.合约名称 }}</td>
                     <td>{{ record.当前价 }}</td>
@@ -89,12 +89,12 @@
                     <td>{{ record.八四分位 }}</td>
                     <td>{{ record.八三分位 }}</td>
                     <td>{{ record.八二分位 }}</td>
+                    <td>{{ record.八一分位 }}</td>
                     <td>{{ record.剩余天数 }}</td>
                     <td>{{ record.深度分值 }}</td>
                     <td>{{ record.权利金 }}</td>
                     <td>{{ record.手续费 }}</td>
-                    <td>{{ record.保证金 }}</td>
-                    <td>{{ record.性价比 }}</td>
+                    <td>{{ record.保证金率 }}</td>
                     <td>{{ record.性价比分值 }}</td>
                     <td>{{ record.多空 }}</td>
                     <td>{{ record.技术分值 }}</td>
@@ -115,6 +115,16 @@
     <script>
         // 设置每600秒刷新一次数据
         const refreshInterval = 600000;
+
+        // 新增：填充自增序号的函数
+        function fillSerialNumber() {
+            // 获取所有序号列单元格（class为serial-number）
+            const serialCells = document.querySelectorAll('.serial-number');
+            // 遍历单元格，从1开始赋值序号
+            serialCells.forEach((cell, index) => {
+                cell.textContent = index + 1;  // index是0开始，+1后变成1、2、3...
+            });
+        }
 
         function refreshData() {
             const loading = document.getElementById('loading');
@@ -140,6 +150,7 @@
                 })
                 .finally(() => {
                     loading.style.display = 'none';
+                    fillSerialNumber();  // 刷新后调用：重新填充序号
                 });
         }
 
@@ -148,6 +159,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
             document.getElementById('last-refresh').textContent = now.toLocaleString();
+            fillSerialNumber();  // 页面首次加载后调用：填充初始序号
         });
     </script>
 </body>
