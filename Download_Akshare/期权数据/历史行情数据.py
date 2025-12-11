@@ -24,7 +24,7 @@ if __name__ == '__main__':
             # 打印基本信息
             print(first_field)
             # 可能出错的代码
-            get_futures_daily_df = ak.get_futures_daily(start_date="20251031", end_date="20251031", market=f"{first_field}")
+            get_futures_daily_df = ak.get_futures_daily(start_date="20251119", end_date="20251210", market=f"{first_field}")
             if 'index' in get_futures_daily_df.columns:
                 get_futures_daily_df = get_futures_daily_df.drop(columns='index')  # 只有存在时才删除
             # 间隔 2 秒
