@@ -1,4 +1,9 @@
+import warnings
 import pandas as pd
+
+# 抑制 pandas 的 SettingWithCopyWarning 警告
+warnings.filterwarnings('ignore', category=pd.errors.SettingWithCopyWarning)
+
 import akshare as ak
 from sqlalchemy import create_engine
 import time
@@ -14,10 +19,10 @@ if __name__ == '__main__':
     # today
     current_date = date.today()
     trade_date = current_date.strftime("%Y%m%d")
+    trade_date = "20251215"
     print(trade_date)
     # 品种
-    #product = ["CFFEX", "INE", "CZCE", "DCE", "SHFE", "GFEX"]
-    product = ["CFFEX", "INE", "CZCE", "SHFE", "GFEX"]
+    product = ["原油期权", "铜期权", "铝期权", "锌期权", "铅期权", "螺纹钢期权", "镍期权", "锡期权", "氧化铝期权", "黄金期权", "白银期权", "丁二烯橡胶期权", "天胶期权", "石油沥青期权", "铸造铝合金期权", "燃料油期权", "胶版印刷纸期权", "纸浆期权"]
     # 遍历
     for row in product:
         first_field = row
@@ -25,12 +30,9 @@ if __name__ == '__main__':
             # 打印基本信息
             print(first_field)
             # 可能出错的代码
-            get_futures_daily_df = ak.get_futures_daily(start_date="20251215", end_date="20251215", market=f"{first_field}")
-            if 'index' in get_futures_daily_df.columns:
-                get_futures_daily_df = get_futures_daily_df.drop(columns='index')  # 只有存在时才删除
-            # 间隔 2 秒
-            time.sleep(2)
+            option_hist_shfe_df = ak.option_hist_shfe(symbol=f"{first_field}", trade_date=f"{trade_date}")
+            option_hist_shfe_df['交易日'] = trade_date
             # write to mysql
-            res = get_futures_daily_df.to_sql('get_futures_daily', engine, index=False, if_exists='append', chunksize=10000)
+            res = option_hist_shfe_df.to_sql('option_hist_shfe', engine, index=False, if_exists='append', chunksize=10000)
         except Exception as e:  # 捕获所有继承自Exception的异常
             print(f"发生错误: {str(e)}")
