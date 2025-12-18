@@ -1,23 +1,14 @@
-import warnings
 import pandas as pd
-
 import akshare as ak
 from sqlalchemy import create_engine
-import time
-from datetime import date
 
-if __name__ == '__main__':
+def core(trade_date: str) -> None:
     # set option of pandas
     pd.set_option('display.max_rows', None)  # 显示所有行
     pd.set_option('display.max_columns', None)  # 显示所有列
     pd.set_option('display.width', 1000)  # 调整宽度避免换行
     # create mysql engine
     engine = create_engine('mysql+pymysql://root:12345678@localhost:3306/akshare')
-    # today
-    current_date = date.today()
-    trade_date = current_date.strftime("%Y%m%d")
-    trade_date = "20251215"
-    print(trade_date)
     # 品种
     product = ["白糖期权", "棉花期权", "甲醇期权", "PTA期权", "动力煤期权", "菜籽粕期权", "菜籽油期权", "花生期权", "对二甲苯期权", "烧碱期权", "纯碱期权", "短纤期权", "锰硅期权", "硅铁期权", "尿素期权", "苹果期权", "红枣期权", "玻璃期权", "瓶片期权", "丙烯期权"]
     # 遍历

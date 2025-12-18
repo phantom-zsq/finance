@@ -1,8 +1,5 @@
 import pandas as pd
-import akshare as ak
 from sqlalchemy import create_engine
-import time
-from datetime import date
 
 if __name__ == '__main__':
     # set option of pandas

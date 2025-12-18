@@ -2,19 +2,14 @@ import pandas as pd
 import akshare as ak
 from sqlalchemy import create_engine
 import time
-from datetime import date
 
-if __name__ == '__main__':
+def core(trade_date: str) -> None:
     # set option of pandas
     pd.set_option('display.max_rows', None)  # 显示所有行
     pd.set_option('display.max_columns', None)  # 显示所有列
     pd.set_option('display.width', 1000)  # 调整宽度避免换行
     # create mysql engine
     engine = create_engine('mysql+pymysql://root:12345678@localhost:3306/akshare')
-    # today
-    current_date = date.today()
-    trade_date = current_date.strftime("%Y%m%d")
-    print(trade_date)
     # 品种
     #product = ["CFFEX", "INE", "CZCE", "DCE", "SHFE", "GFEX"]
     product = ["CFFEX", "INE", "CZCE", "SHFE", "GFEX"]
@@ -25,7 +20,7 @@ if __name__ == '__main__':
             # 打印基本信息
             print(first_field)
             # 可能出错的代码
-            get_futures_daily_df = ak.get_futures_daily(start_date="20251215", end_date="20251215", market=f"{first_field}")
+            get_futures_daily_df = ak.get_futures_daily(start_date=f"{trade_date}", end_date=f"{trade_date}", market=f"{first_field}")
             if 'index' in get_futures_daily_df.columns:
                 get_futures_daily_df = get_futures_daily_df.drop(columns='index')  # 只有存在时才删除
             # 间隔 2 秒

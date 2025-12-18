@@ -1,26 +1,17 @@
 import warnings
 import pandas as pd
-
 # 抑制 pandas 的 SettingWithCopyWarning 警告
 warnings.filterwarnings('ignore', category=pd.errors.SettingWithCopyWarning)
-
 import akshare as ak
 from sqlalchemy import create_engine
-import time
-from datetime import date
 
-if __name__ == '__main__':
+def core(trade_date: str) -> None:
     # set option of pandas
     pd.set_option('display.max_rows', None)  # 显示所有行
     pd.set_option('display.max_columns', None)  # 显示所有列
     pd.set_option('display.width', 1000)  # 调整宽度避免换行
     # create mysql engine
     engine = create_engine('mysql+pymysql://root:12345678@localhost:3306/akshare')
-    # today
-    current_date = date.today()
-    trade_date = current_date.strftime("%Y%m%d")
-    trade_date = "20251215"
-    print(trade_date)
     # 品种
     product = ["原油期权", "铜期权", "铝期权", "锌期权", "铅期权", "螺纹钢期权", "镍期权", "锡期权", "氧化铝期权", "黄金期权", "白银期权", "丁二烯橡胶期权", "天胶期权", "石油沥青期权", "铸造铝合金期权", "燃料油期权", "胶版印刷纸期权", "纸浆期权"]
     # 遍历

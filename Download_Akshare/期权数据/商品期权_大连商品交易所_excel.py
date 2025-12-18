@@ -1,27 +1,15 @@
-import warnings
 import pandas as pd
-
-import akshare as ak
 from sqlalchemy import create_engine
-import time
-from datetime import date
 
-if __name__ == '__main__':
+def core(trade_date: str, CSV_FILE_PATH: str) -> None:
     # set option of pandas
     pd.set_option('display.max_rows', None)  # 显示所有行
     pd.set_option('display.max_columns', None)  # 显示所有列
     pd.set_option('display.width', 1000)  # 调整宽度避免换行
     # create mysql engine
     engine = create_engine('mysql+pymysql://root:12345678@localhost:3306/akshare')
-    # today
-    current_date = date.today()
-    trade_date = current_date.strftime("%Y%m%d")
-    trade_date = "20251215"
-    print(trade_date)
 
     try:
-        # CSV文件路径
-        CSV_FILE_PATH = "/Users/admin/Downloads/日行情_1765863490590.csv"
         # 表名
         option_hist_dce_df = pd.read_csv(
             CSV_FILE_PATH,
