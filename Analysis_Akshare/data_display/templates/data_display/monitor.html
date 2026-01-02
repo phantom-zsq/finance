@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>期权品种监控系统</title>
+    <style>
+        body {
+            font-family: "Microsoft Yahei", Arial, sans-serif;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            background-color: #fafafa;
+        }
+        .container {
+            text-align: center;
+            padding: 0 5px;
+        }
+        .refresh-info {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        /* 加载和错误提示样式 */
+        .loading {
+            color: #007bff;
+            display: none;
+            padding: 15px;
+            font-weight: bold;
+            animation: blink 1s infinite alternate;
+            margin: 20px 0;
+        }
+        @keyframes blink {
+            from { opacity: 0.7; }
+            to { opacity: 1; }
+        }
+        .error-tip {
+            color: #dc3545;
+            text-align: center;
+            padding: 10px;
+            display: none;
+            background-color: #f8d7da;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        /* 模块通用样式 */
+        .monitor-module {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .module-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .module-title i {
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background-color: #007bff;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+        /* 记录数统计样式 */
+        .count-stat {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .count-card {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px 10px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+        .count-card .card-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .count-card .card-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .count-card .card-desc {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+        }
+        /* 预警模块表格通用样式 */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 10px;
+            border-radius: 6px;
+            box-shadow: 0 0 3px rgba(0,0,0,0.05);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+        th {
+            background-color: #f5f5f5;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 12px 6px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 6px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        /* 预警差异行高亮 */
+        tr.diff-row {
+            background-color: #fff3cd;
+        }
+        /* 空数据样式 */
+        .empty-data {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 13px;
+        }
+        /* 今日/昨日数据区分样式 */
+        .today-label {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .yesterday-label {
+            color: #6c757d;
+            font-weight: bold;
+        }
+        .diff-label {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>期权品种监控系统</h1>
+        <div class="refresh-info">
+            数据将每600秒自动刷新一次 | 上次刷新: <span id="last-refresh"></span> | 监控维度：今日数据与昨日数据对比（差异项高亮展示）
+        </div>
+        <div class="loading" id="loading">正在刷新监控数据...</div>
+        <div class="error-tip" id="error-tip">数据刷新失败，请稍后重试！</div>
+
+        <!-- 模块1：记录数统计 -->
+        <div class="monitor-module">
+            <div class="module-title">
+                <i></i>记录数统计
+            </div>
+            <div class="count-stat">
+                <div class="count-card">
+                    <div class="card-title">今日总记录数</div>
+                    <div class="card-value">{{ today_total_count|default:0 }}</div>
+                    <div class="card-desc">包含所有期权合约</div>
+                </div>
+                <div class="count-card">
+                    <div class="card-title">昨日总记录数</div>
+                    <div class="card-value">{{ yesterday_total_count|default:0 }}</div>
+                    <div class="card-desc">包含所有期权合约</div>
+                </div>
+                <div class="count-card">
+                    <div class="card-title">记录数变动</div>
+                    <div class="card-value" style="color: {{ count_change_color|default:'#333' }}">
+                        {{ count_change|default:0 }}
+                    </div>
+                    <div class="card-desc">今日 - 昨日（正数为新增，负数为减少）</div>
+                </div>
+                <div class="count-card">
+                    <div class="card-title">差异预警总条数</div>
+                    <div class="card-value" style="color: #dc3545">
+                        {{ total_warning_count|default:0 }}
+                    </div>
+                    <div class="card-desc">涨跌幅+保证金+手续费差异合计</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块2：涨跌幅预警 -->
+        <div class="monitor-module">
+            <div class="module-title">
+                <i></i>涨跌幅预警（今日与昨日涨跌幅不一致明细）
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>交易所</th>
+                            <th>品种名称</th>
+                            <th>合约名称</th>
+                            <th>昨日涨跌幅（%）</th>
+                            <th>今日涨跌幅（%）</th>
+                            <th>涨跌幅差异（%）</th>
+                        </tr>
+                    </thead>
+                    <tbody id="price-change-container">
+                        {% for record in price_change_warnings %}
+                        <tr class="diff-row">
+                            <td class="serial-number"></td>
+                            <td>{{ record.交易所 }}</td>
+                            <td>{{ record.品种名称 }}</td>
+                            <td>{{ record.合约名称 }}</td>
+                            <td class="yesterday-label">{{ record.昨日涨跌幅|default:0|floatformat:2 }}</td>
+                            <td class="today-label">{{ record.今日涨跌幅|default:0|floatformat:2 }}</td>
+                            <td class="diff-label">{{ record.涨跌幅差异|default:0|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="empty-data">暂无涨跌幅差异数据，一切正常</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 模块3：保证金预警 -->
+        <div class="monitor-module">
+            <div class="module-title">
+                <i></i>保证金预警（今日与昨日保证金率不一致明细）
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>交易所</th>
+                            <th>品种名称</th>
+                            <th>合约名称</th>
+                            <th>昨日保证金率（%）</th>
+                            <th>今日保证金率（%）</th>
+                            <th>保证金率差异（%）</th>
+                        </tr>
+                    </thead>
+                    <tbody id="margin-container">
+                        {% for record in margin_warnings %}
+                        <tr class="diff-row">
+                            <td class="serial-number"></td>
+                            <td>{{ record.交易所 }}</td>
+                            <td>{{ record.品种名称 }}</td>
+                            <td>{{ record.合约名称 }}</td>
+                            <td class="yesterday-label">{{ record.昨日保证金率|default:0|floatformat:2 }}</td>
+                            <td class="today-label">{{ record.今日保证金率|default:0|floatformat:2 }}</td>
+                            <td class="diff-label">{{ record.保证金率差异|default:0|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="empty-data">暂无保证金率差异数据，一切正常</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 模块4：手续费预警 -->
+        <div class="monitor-module">
+            <div class="module-title">
+                <i></i>手续费预警（今日与昨日手续费不一致明细）
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>交易所</th>
+                            <th>品种名称</th>
+                            <th>合约名称</th>
+                            <th>昨日手续费（元/手）</th>
+                            <th>今日手续费（元/手）</th>
+                            <th>手续费差异（元/手）</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fee-container">
+                        {% for record in fee_warnings %}
+                        <tr class="diff-row">
+                            <td class="serial-number"></td>
+                            <td>{{ record.交易所 }}</td>
+                            <td>{{ record.品种名称 }}</td>
+                            <td>{{ record.合约名称 }}</td>
+                            <td class="yesterday-label">{{ record.昨日手续费|default:0|floatformat:4 }}</td>
+                            <td class="today-label">{{ record.今日手续费|default:0|floatformat:4 }}</td>
+                            <td class="diff-label">{{ record.手续费差异|default:0|floatformat:4 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="empty-data">暂无手续费差异数据，一切正常</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            refreshInterval: 600000, // 10分钟刷新一次
+            elements: {
+                loading: document.getElementById('loading'),
+                lastRefresh: document.getElementById('last-refresh'),
+                errorTip: document.getElementById('error-tip'),
+                priceChangeContainer: document.getElementById('price-change-container'),
+                marginContainer: document.getElementById('margin-container'),
+                feeContainer: document.getElementById('fee-container')
+            }
+        };
+
+        // 填充所有表格序号
+        function fillAllSerialNumbers() {
+            const allSerialCells = document.querySelectorAll('.serial-number');
+            allSerialCells.forEach((cell, index) => {
+                cell.textContent = index + 1;
+            });
+        }
+
+        // 刷新数据核心函数
+        function refreshData() {
+            CONFIG.elements.errorTip.style.display = 'none';
+            CONFIG.elements.loading.style.display = 'block';
+
+            fetch(window.location.href, { cache: 'no-cache' })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP错误：${response.status}`);
+                return response.text();
+            })
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // 替换各模块数据
+                const newPriceChange = doc.getElementById('price-change-container')?.innerHTML || '';
+                const newMargin = doc.getElementById('margin-container')?.innerHTML || '';
+                const newFee = doc.getElementById('fee-container')?.innerHTML || '';
+
+                if (newPriceChange) CONFIG.elements.priceChangeContainer.innerHTML = newPriceChange;
+                if (newMargin) CONFIG.elements.marginContainer.innerHTML = newMargin;
+                if (newFee) CONFIG.elements.feeContainer.innerHTML = newFee;
+
+                // 更新最后刷新时间
+                CONFIG.elements.lastRefresh.textContent = new Date().toLocaleString();
+            })
+            .catch(error => {
+                console.error('刷新监控数据失败:', error);
+                CONFIG.elements.errorTip.style.display = 'block';
+            })
+            .finally(() => {
+                CONFIG.elements.loading.style.display = 'none';
+                fillAllSerialNumbers();
+            });
+        }
+
+        // 页面初始化
+        function init() {
+            if (CONFIG.elements.lastRefresh) {
+                CONFIG.elements.lastRefresh.textContent = new Date().toLocaleString();
+            }
+            fillAllSerialNumbers();
+            // 开启定时刷新
+            setInterval(refreshData, CONFIG.refreshInterval);
+        }
+
+        // 页面加载完成后执行初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
