@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>期权品种打分系统</title>
+    <title>期权品种打分系统_离线</title>
     <style>
         body {
             font-family: "Microsoft Yahei", Arial, sans-serif;
@@ -233,7 +233,7 @@
                 CONFIG.elements.lastRefresh.textContent = new Date().toLocaleString();
             }
             fillSerialNumber();
-            setInterval(refreshData, CONFIG.refreshInterval);
+            // setInterval(refreshData, CONFIG.refreshInterval);
         }
 
         document.addEventListener('DOMContentLoaded', init);
