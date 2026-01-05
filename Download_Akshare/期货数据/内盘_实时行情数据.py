@@ -18,7 +18,6 @@ def future_real_time() -> None:
     try:
         futures_symbol_mark_df = ak.futures_symbol_mark()
         for item in futures_symbol_mark_df['symbol']:
-            print(item)
             futures_zh_realtime_df = ak.futures_zh_realtime(symbol=item)
             futures_zh_realtime_df['交易日'] = current_time
             # write to mysql

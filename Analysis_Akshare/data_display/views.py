@@ -93,7 +93,7 @@ def data_list(request):
                            "    ) t5 "
                            "    on t1.合约名称 = t5.合约名称 "
                            "where a.品种名称 not like '%%动力煤%%'  "
-                           " ",(trade_date,current_workday,trade_date,current_workday,trade_date,current_workday,trade_date,current_workday,trade_date,trade_date,current_workday,current_workday,trade_date,trade_date,trade_date,trade_date,current_workday))
+                           " ",(trade_date,current_workday,trade_date,current_workday,trade_date,current_workday,trade_date,current_workday,trade_date,trade_date,current_workday,current_workday,trade_date,trade_date,trade_date,trade_date,trade_date))
 
             # print sql
             for index, query in enumerate(connection.queries, start=1):
@@ -277,7 +277,7 @@ def monitor(request):
                    "order by a.品种名称 ")
 
     # 查询今日、昨日数据（调用内部工具函数）
-    today_data_list = query_option_data(sql_template, [pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,pre_workday,current_workday,current_workday,pre_workday,pre_workday,pre_workday,pre_workday,current_workday])
+    today_data_list = query_option_data(sql_template, [pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,pre_workday,current_workday,current_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday])
     yesterday_data_list = query_option_data(sql_template, [pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday])
 
     # 转为字典：key=合约名称，方便匹配对比
@@ -435,7 +435,7 @@ def real_time(request):
                            "    (select f1.到期日分组,f1.合约日期,f1.到期日,count(*) as 剩余天数 from expiration_date f1 inner join calendar f2 on f2.交易日 > %s and f2.交易日 <= f1.到期日 group by f1.到期日分组,f1.合约日期,f1.到期日) b "
                            "    on a.到期日分组 = b.到期日分组 and (REGEXP_REPLACE(t1.合约名称, '[a-zA-Z]', '') = b.合约日期 or REGEXP_REPLACE(t1.合约名称, '[a-zA-Z]', '') = SUBSTRING(b.合约日期, -3)) "
                            "inner join "
-                           "    (select settlement as settle,symbol from futures_zh_realtime where 交易日 = (select max(交易日) from futures_zh_realtime)) t2 "
+                           "    (select trade as settle,symbol from futures_zh_realtime where 交易日 = (select max(交易日) from futures_zh_realtime)) t2 "
                            "    on t1.合约名称 = t2.symbol or t1.合约名称 = REGEXP_REPLACE(t2.symbol, '([a-zA-Z])[0-9]', '$1') "
                            "left join "
                            "    (select regexp_replace(期权品种,'^.*\\\\(([^\\\\d]*).*$','$1') as 期权品种,min(开仓) as 开仓,min(平今) as 平今 from option_comm_info where 交易日=%s group by regexp_replace(期权品种,'^.*\\\\(([^\\\\d]*).*$','$1')) t3 "
