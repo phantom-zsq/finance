@@ -2,6 +2,7 @@ import pandas as pd
 import akshare as ak
 from sqlalchemy import create_engine
 import time
+from datetime import date
 
 def core(trade_date: str) -> None:
     # set option of pandas
@@ -10,11 +11,15 @@ def core(trade_date: str) -> None:
     pd.set_option('display.width', 1000)  # 调整宽度避免换行
     # create mysql engine
     engine = create_engine('mysql+pymysql://root:12345678@localhost:3306/akshare')
+    # today
+    current_date = date.today()
+    today = current_date.strftime("%Y%m%d")
+    print(today)
     # query data
     try:
         # 可能出错的代码
         futures_rule_df = ak.futures_rule(date=f"{trade_date}")
-        futures_rule_df['交易日'] = "20260105"
+        futures_rule_df['交易日'] = today
         # 间隔 2 秒
         time.sleep(2)
         # write to mysql
@@ -23,4 +28,4 @@ def core(trade_date: str) -> None:
         print(f"发生错误: {str(e)}")
 
 if __name__ == "__main__":
-    core(trade_date="20251231")
+    core(trade_date="20260107")

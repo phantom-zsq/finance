@@ -93,7 +93,7 @@ def data_list(request):
                            "    ) t5 "
                            "    on t1.合约名称 = t5.合约名称 "
                            "where a.品种名称 not like '%%动力煤%%'  "
-                           " ",(trade_date,current_workday,trade_date,current_workday,trade_date,current_workday,trade_date,current_workday,trade_date,trade_date,current_workday,current_workday,trade_date,trade_date,trade_date,trade_date,trade_date))
+                           " ",(trade_date,current_workday,trade_date,current_workday,trade_date,current_workday,trade_date,current_workday,trade_date,trade_date,current_workday,current_workday,trade_date,trade_date,trade_date,trade_date,current_workday))
 
             # print sql
             for index, query in enumerate(connection.queries, start=1):
@@ -277,7 +277,7 @@ def monitor(request):
                    "order by a.品种名称 ")
 
     # 查询今日、昨日数据（调用内部工具函数）
-    today_data_list = query_option_data(sql_template, [pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,pre_workday,current_workday,current_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday])
+    today_data_list = query_option_data(sql_template, [pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,pre_workday,current_workday,current_workday,pre_workday,pre_workday,pre_workday,pre_workday,current_workday])
     yesterday_data_list = query_option_data(sql_template, [pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,current_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday,pre_workday])
 
     # 转为字典：key=合约名称，方便匹配对比

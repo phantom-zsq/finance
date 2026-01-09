@@ -24,9 +24,9 @@ def is_within_futures_hours(current_dt: datetime) -> bool:
     current_time = current_dt.time()  # 提取当前时间（时分秒），忽略日期
 
     # 定义三个国内期货交易时间段（北京时间）
-    morning_start, morning_end = dt_time(9, 0), dt_time(11, 30)  # 早9:00-11:30
-    afternoon_start, afternoon_end = dt_time(13, 30), dt_time(15, 15)  # 下午13:30-15:00
-    evening_start, evening_end = dt_time(21, 0), dt_time(23, 0)  # 晚21:00-23:00
+    morning_start, morning_end = dt_time(9, 0), dt_time(11, 35)  # 早9:00-11:30
+    afternoon_start, afternoon_end = dt_time(13, 30), dt_time(15, 5)  # 下午13:30-15:00
+    evening_start, evening_end = dt_time(21, 0), dt_time(23, 5)  # 晚21:00-23:00
 
     # 判断当前时间是否在任一有效时间段内
     return (morning_start <= current_time <= morning_end) or \
@@ -122,4 +122,6 @@ def main():
             time.sleep(NON_TRADING_WAIT)
 
 if __name__ == "__main__":
+    real_time()
+    time.sleep(60*5)
     main()
