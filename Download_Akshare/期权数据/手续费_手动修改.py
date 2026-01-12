@@ -13,9 +13,36 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from sqlalchemy import create_engine
+import time
+
+def core(trade_date: str, cookie: str) -> None:
+    # set option of pandas
+    pd.set_option('display.max_rows', None)  # 显示所有行
+    pd.set_option('display.max_columns', None)  # 显示所有列
+    pd.set_option('display.width', 1000)  # 调整宽度避免换行
+    # create mysql engine
+    engine = create_engine('mysql+pymysql://root:12345678@localhost:3306/akshare')
+    # query data
+    option_comm_symbol_df = option_comm_symbol(cookie)
+    # 遍历每行元组，第一个元素（索引0）是第一个字段
+    for row in option_comm_symbol_df.itertuples(index=False):  # index=False 不包含索引
+        first_field = row[0]  # 元组的第一个元素
+        try:
+            # 打印基本信息
+            print(first_field)
+            # 可能出错的代码
+            option_comm_info_df = option_comm_info(cookie, symbol=f"{first_field}")
+            option_comm_info_df['交易日'] = trade_date
+            # 间隔 2 秒
+            time.sleep(2)
+            # write to mysql
+            res = option_comm_info_df.to_sql('option_comm_info', engine, index=False, if_exists='append', chunksize=10000)
+        except Exception as e:  # 捕获所有继承自Exception的异常
+            print(f"发生错误: {str(e)}")
 
 @lru_cache()
-def option_comm_symbol() -> pd.DataFrame:
+def option_comm_symbol(cookie: str) -> pd.DataFrame:
     import urllib3
 
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -25,7 +52,7 @@ def option_comm_symbol() -> pd.DataFrame:
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "Accept-Language": "zh-CN,zh;q=0.9",
-        "cookie": "PHPSESSID=6esrnfvvm3057g9s03eh7tm7b3; 3e8e777b50b4eb9ba66862de66dee4e2=50938d46641cc245f4c7987ac5c44cd0",
+        "cookie": cookie,
         "Referer": "https://www.9qihuo.com/qiquanshouxufei"
     }
     # 请求时添加headers参数
@@ -44,7 +71,7 @@ def option_comm_symbol() -> pd.DataFrame:
     return temp_df
 
 
-def option_comm_info(symbol: str = "工业硅期权") -> pd.DataFrame:
+def option_comm_info(cookie: str, symbol: str = "工业硅期权") -> pd.DataFrame:
     """
     九期网-商品期权手续费
     https://www.9qihuo.com/qiquanshouxufei
@@ -67,7 +94,7 @@ def option_comm_info(symbol: str = "工业硅期权") -> pd.DataFrame:
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "Accept-Language": "zh-CN,zh;q=0.9",
-        "cookie": "PHPSESSID=6esrnfvvm3057g9s03eh7tm7b3; 3e8e777b50b4eb9ba66862de66dee4e2=50938d46641cc245f4c7987ac5c44cd0",
+        "cookie": cookie,
         "Referer": "https://www.9qihuo.com/qiquanshouxufei"
     }
     # 请求时添加headers参数
@@ -97,8 +124,9 @@ def option_comm_info(symbol: str = "工业硅期权") -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    option_comm_symbol_df = option_comm_symbol()
+    cookie = "023ad3a0c69409e954e4f67f16b8f63d=1b1e9546d4b30850aee19b6b77868bca; PHPSESSID=44nnmth42ed0odibl1pme4c49o"
+    option_comm_symbol_df = option_comm_symbol(cookie)
     print(option_comm_symbol_df)
 
-    option_comm_info_df = option_comm_info(symbol="工业硅期权")
+    option_comm_info_df = option_comm_info(cookie, symbol="工业硅期权")
     print(option_comm_info_df)
