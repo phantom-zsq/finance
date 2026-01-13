@@ -116,11 +116,11 @@ def data_list(request):
                 item["涨跌停比例"] = float(item["涨跌停比例"])
                 item["当前价"] = float(item["当前价"])
                 item["行权价"] = float(item["行权价"])
-                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01),1)
-                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2),1)
-                item["八三分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 3 / 8),1)
-                item["八二分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 4),1)
-                item["八一分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 8),1)
+                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01),2)
+                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2),2)
+                item["八三分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 3 / 8),2)
+                item["八二分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 4),2)
+                item["八一分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 8),2)
                 # 深度分值
                 item["深度分值"] = min(int(item["八八分位"] * 100 / item["剩余天数"]), 100)
                 # 性价比分值
@@ -478,11 +478,11 @@ def real_time(request):
                 item["涨跌停比例"] = float(item["涨跌停比例"])
                 item["当前价"] = float(item["当前价"])
                 item["行权价"] = float(item["行权价"])
-                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01),1)
-                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2),1)
-                item["八三分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 3 / 8),1)
-                item["八二分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 4),1)
-                item["八一分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 8),1)
+                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01),2)
+                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2),2)
+                item["八三分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 3 / 8),2)
+                item["八二分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 4),2)
+                item["八一分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 8),2)
                 # 深度分值
                 item["深度分值"] = min(int(item["八八分位"] * 100 / item["剩余天数"]), 100)
                 # 性价比分值
