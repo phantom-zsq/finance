@@ -83,7 +83,7 @@ def option_comm_info(cookie: str, symbol: str = "工业硅期权") -> pd.DataFra
     import urllib3
 
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    symbol_df = option_comm_symbol()
+    symbol_df = option_comm_symbol(cookie)
     symbol_str = symbol_df[symbol_df["品种名称"].str.contains(symbol)][
         "品种代码"
     ].values[0]
