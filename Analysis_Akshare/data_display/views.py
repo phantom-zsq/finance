@@ -27,8 +27,8 @@ def data_list(request):
             trade_date = None  # 初始化变量: 交易日
             result = cursor.fetchone()  # 该SQL仅返回1行结果，用fetchone()
             if result:  # 防止查询结果为空导致报错
-                pre_workday = result[0]  # 最小交易日
-                current_workday = result[1]  # 最大交易日
+                pre_workday = str(result[0])  # 最小交易日
+                current_workday = str(result[1])  # 最大交易日
 
             current_time = datetime.now(pytz.timezone("Asia/Shanghai")).time()
             if current_date == current_workday and current_time <= TIME_THRESHOLD:
@@ -47,7 +47,8 @@ def data_list(request):
                            "    REPLACE(t3.平今,'元','') as 平今, "
                            "    t4.做多保证金率 as 保证金率, "
                            "    t4.合约乘数, "
-                           "    t5.涨跌停比例, "
+                           "    t5.涨跌停比例,"
+                           "    t5.限价单每笔最大下单手数 as 限仓, "
                            "    a.到期日分组, "
                            "    b.剩余天数 "
                            "from ( "
@@ -75,7 +76,7 @@ def data_list(request):
                            "    (select 交易所,合约代码,品种名称,做多保证金率,合约乘数 from futures_fees_info where 交易日=%s) t4 "
                            "    on t1.合约名称 = t4.合约代码 "
                            "left join "
-                           "    (   select a.合约名称, "
+                           "    (   select a.合约名称,b.限价单每笔最大下单手数, "
                            "        case when b.特殊合约参数调整 REGEXP CONCAT('(', a.合约名称, '|', CONCAT(SUBSTRING(a.合约名称, 1, LENGTH(a.合约名称) - 4), SUBSTRING(a.合约名称, -3)), ')', '合约(交易保证金比例为[0-9.]+%%，)?涨跌幅度为([0-9.]+)%%') "
                            "            then REGEXP_SUBSTR(REGEXP_SUBSTR(REGEXP_SUBSTR(b.特殊合约参数调整, CONCAT('(', a.合约名称, '|', CONCAT(SUBSTRING(a.合约名称, 1, LENGTH(a.合约名称) - 4), SUBSTRING(a.合约名称, -3)), ')', '合约(交易保证金比例为[0-9.]+%%，)?涨跌幅度为([0-9.]+)%%')),'涨跌幅度为([0-9.]+)%%'),'[0-9.]+') "
                            "            else b.涨跌停板幅度 end as 涨跌停比例 "
@@ -128,6 +129,7 @@ def data_list(request):
                 item["期权结算价"] = 1
                 item["期权保证金"] = item["期权结算价"] * float(item["合约乘数"]) + max(item["期货保证金"] - max(0.5 * (item["行权价"] - item["当前价"]) * float(item["合约乘数"]), 0), 0.5 * item["期货保证金"])
                 item["性价比分值"] = int(max(float(item["权利金"]) * float(item["合约乘数"]) - float(item["手续费"]), 0) * 10000 / item["剩余天数"] / float(item["期权保证金"]))
+                item["限仓金额"] = int(item["期权保证金"] * item["限仓"] / 10000)
                 # 多空
                 item["多空"] = '多'
                 # 技术分值
@@ -212,8 +214,8 @@ def monitor(request):
         current_workday = None  # 初始化变量: 最大交易日
         result = cursor.fetchone()  # 该SQL仅返回1行结果，用fetchone()
         if result:  # 防止查询结果为空导致报错
-            pre_workday = result[0]  # 最小交易日
-            current_workday = result[1]  # 最大交易日
+            pre_workday = str(result[0])  # 最小交易日
+            current_workday = str(result[1])  # 最大交易日
 
     # ===================== 步骤2：原生SQL查询今日/昨日数据（无需模型类） =====================
     # 定义查询SQL（适配之前创建的option_data表，若表名/字段名不一致请对应修改）
@@ -392,8 +394,8 @@ def real_time(request):
             trade_date = None  # 初始化变量: 交易日
             result = cursor.fetchone()  # 该SQL仅返回1行结果，用fetchone()
             if result:  # 防止查询结果为空导致报错
-                pre_workday = result[0]  # 最小交易日
-                current_workday = result[1]  # 最大交易日
+                pre_workday = str(result[0])  # 最小交易日
+                current_workday = str(result[1])  # 最大交易日
             trade_date = current_workday
 
             cursor.execute("select "
@@ -408,6 +410,7 @@ def real_time(request):
                            "    t4.做多保证金率 as 保证金率, "
                            "    t4.合约乘数, "
                            "    t5.涨跌停比例, "
+                           "    t5.限价单每笔最大下单手数 as 限仓, "
                            "    a.到期日分组, "
                            "    b.剩余天数 "
                            "from ( "
@@ -443,7 +446,7 @@ def real_time(request):
                            "    (select 交易所,合约代码,品种名称,做多保证金率,合约乘数 from futures_fees_info where 交易日=%s) t4 "
                            "    on t1.合约名称 = t4.合约代码 "
                            "left join "
-                           "    (   select a.合约名称, "
+                           "    (   select a.合约名称,b.限价单每笔最大下单手数, "
                            "        case when b.特殊合约参数调整 REGEXP CONCAT('(', a.合约名称, '|', CONCAT(SUBSTRING(a.合约名称, 1, LENGTH(a.合约名称) - 4), SUBSTRING(a.合约名称, -3)), ')', '合约(交易保证金比例为[0-9.]+%%，)?涨跌幅度为([0-9.]+)%%') "
                            "            then REGEXP_SUBSTR(REGEXP_SUBSTR(REGEXP_SUBSTR(b.特殊合约参数调整, CONCAT('(', a.合约名称, '|', CONCAT(SUBSTRING(a.合约名称, 1, LENGTH(a.合约名称) - 4), SUBSTRING(a.合约名称, -3)), ')', '合约(交易保证金比例为[0-9.]+%%，)?涨跌幅度为([0-9.]+)%%')),'涨跌幅度为([0-9.]+)%%'),'[0-9.]+') "
                            "            else b.涨跌停板幅度 end as 涨跌停比例 "
@@ -490,6 +493,7 @@ def real_time(request):
                 item["期权结算价"] = 1
                 item["期权保证金"] = item["期权结算价"] * float(item["合约乘数"]) + max(item["期货保证金"] - max(0.5 * (item["行权价"] - item["当前价"]) * float(item["合约乘数"]), 0), 0.5 * item["期货保证金"])
                 item["性价比分值"] = int(max(float(item["权利金"]) * float(item["合约乘数"]) - float(item["手续费"]), 0) * 10000 / item["剩余天数"] / float(item["期权保证金"]))
+                item["限仓金额"] = int(item["期权保证金"] * item["限仓"] / 10000)
                 # 多空
                 item["多空"] = '多'
                 # 技术分值
