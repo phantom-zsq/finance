@@ -55,9 +55,9 @@ def is_within_futures_hours(current_dt: datetime) -> bool:
     current_time = current_dt.time()
 
     # 精准定义交易时段
-    morning_start, morning_end = dt_time(9, 0), dt_time(11, 35)
-    afternoon_start, afternoon_end = dt_time(13, 30), dt_time(15, 5)
-    evening_start, evening_end = dt_time(21, 0), dt_time(23, 5)
+    morning_start, morning_end = dt_time(9, 0), dt_time(11, 51)
+    afternoon_start, afternoon_end = dt_time(13, 30), dt_time(15, 21)
+    evening_start, evening_end = dt_time(21, 0), dt_time(23, 21)
 
     is_morning = morning_start <= current_time <= morning_end
     is_afternoon = afternoon_start <= current_time <= afternoon_end
