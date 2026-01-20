@@ -84,9 +84,11 @@ def option_comm_info(cookie: str, symbol: str = "工业硅期权") -> pd.DataFra
 
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     symbol_df = option_comm_symbol(cookie)
-    symbol_str = symbol_df[symbol_df["品种名称"].str.contains(symbol)][
-        "品种代码"
-    ].values[0]
+    #symbol_str = symbol_df[symbol_df["品种名称"].str.contains(symbol)][
+    #    "品种代码"
+    #].values[0]
+    # 修改了"橡胶期权"和"合成橡胶期权"只会匹配到"合成橡胶期权"的bug
+    symbol_str = symbol_df[symbol_df["品种名称"] == symbol]["品种代码"].values[0]
     params = {"heyue": symbol_str}
     url = "https://www.9qihuo.com/qiquanshouxufei"
     # 仅添加这部分：模拟浏览器的请求头，解决403问题
