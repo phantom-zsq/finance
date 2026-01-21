@@ -179,8 +179,8 @@ if __name__ == "__main__":
     logger.info(f"当前配置：执行间隔 = {EXECUTE_INTERVAL_MINUTES}分钟")
     try:
         real_time()
-        time.sleep(5 * 60)
-        main()
+        # time.sleep(5 * 60)
+        # main()
     except KeyboardInterrupt:
         logger.info("用户手动终止程序，程序退出")
         sys.exit(0)
