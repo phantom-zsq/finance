@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 # 本地模块导入（保持你的路径不变）
 try:
-    from 期权数据.期权实时行情_东方财富 import option_real_time
+    from 期权数据.期权实时行情_东方财富_手动修改 import option_real_time
     from 期货数据.内盘_实时行情数据 import future_real_time
 except ImportError as e:
     logger.error(f"导入本地模块失败：{e}，请检查模块路径是否正确")
