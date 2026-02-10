@@ -8,6 +8,7 @@ https://www.9qihuo.com/qiquanshouxufei
 
 from functools import lru_cache
 from io import StringIO
+from datetime import date
 
 import pandas as pd
 import requests
@@ -40,6 +41,28 @@ def core(trade_date: str, cookie: str) -> None:
             res = option_comm_info_df.to_sql('option_comm_info', engine, index=False, if_exists='append', chunksize=10000)
         except Exception as e:  # 捕获所有继承自Exception的异常
             print(f"发生错误: {str(e)}")
+
+def core(cookie: str, first_field: str) -> None:
+    # set option of pandas
+    pd.set_option('display.max_rows', None)  # 显示所有行
+    pd.set_option('display.max_columns', None)  # 显示所有列
+    pd.set_option('display.width', 1000)  # 调整宽度避免换行
+    # create mysql engine
+    engine = create_engine('mysql+pymysql://root:12345678@localhost:3306/akshare')
+    # query data
+    try:
+        # 打印基本信息
+        print(first_field)
+        # 可能出错的代码
+        option_comm_info_df = option_comm_info(cookie, symbol=f"{first_field}")
+        option_comm_info_df['交易日'] = trade_date
+        # 间隔 2 秒
+        time.sleep(2)
+        # write to mysql
+        res = option_comm_info_df.to_sql('option_comm_info', engine, index=False, if_exists='append', chunksize=10000)
+    except Exception as e:  # 捕获所有继承自Exception的异常
+        print(f"发生错误: {str(e)}")
+
 
 @lru_cache()
 def option_comm_symbol(cookie: str) -> pd.DataFrame:
@@ -127,8 +150,8 @@ def option_comm_info(cookie: str, symbol: str = "工业硅期权") -> pd.DataFra
 
 if __name__ == "__main__":
     cookie = "023ad3a0c69409e954e4f67f16b8f63d=1b1e9546d4b30850aee19b6b77868bca; PHPSESSID=44nnmth42ed0odibl1pme4c49o"
-    option_comm_symbol_df = option_comm_symbol(cookie)
-    print(option_comm_symbol_df)
-
-    option_comm_info_df = option_comm_info(cookie, symbol="工业硅期权")
-    print(option_comm_info_df)
+    # today
+    current_date = date.today()
+    trade_date = current_date.strftime("%Y%m%d")
+    print(trade_date)
+    core(cookie, "铸造铝期权")
