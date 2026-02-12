@@ -42,7 +42,7 @@ def core(trade_date: str, cookie: str) -> None:
         except Exception as e:  # 捕获所有继承自Exception的异常
             print(f"发生错误: {str(e)}")
 
-def core(cookie: str, first_field: str) -> None:
+def core2(cookie: str, first_field: str) -> None:
     # set option of pandas
     pd.set_option('display.max_rows', None)  # 显示所有行
     pd.set_option('display.max_columns', None)  # 显示所有列
@@ -154,4 +154,4 @@ if __name__ == "__main__":
     current_date = date.today()
     trade_date = current_date.strftime("%Y%m%d")
     print(trade_date)
-    core(cookie, "铸造铝期权")
+    core2(cookie, "铸造铝期权")
