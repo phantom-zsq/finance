@@ -49,6 +49,9 @@ def core(trade_date: str, CSV_FILE_PATH: str) -> None:
 
         option_hist_dce_df = option_hist_dce_df[~option_hist_dce_df["品种名称"].str.contains(r"小计|总计", regex=True, na=False)]
 
+        col_index = option_hist_dce_df.columns.get_loc('交易代码')
+        option_hist_dce_df.columns.values[col_index] = '合约'
+
         option_hist_dce_df['交易日'] = trade_date
         # write to mysql
         res = option_hist_dce_df.to_sql('option_hist_dce', engine, index=False, if_exists='append', chunksize=10000)
