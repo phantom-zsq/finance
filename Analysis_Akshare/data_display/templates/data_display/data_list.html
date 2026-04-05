@@ -60,26 +60,23 @@
         th:nth-child(4) { width: 120px; }   /* 合约名称（内容较长） */
         th:nth-child(5) { width: 70px; }    /* 当前价 */
         th:nth-child(6) { width: 70px; }    /* 行权价 */
-        th:nth-child(7) { width: 70px; }    /* 限仓 */
-        th:nth-child(8) { width: 70px; }    /* 金额 */
+        th:nth-child(7) { width: 70px; }    /* 限仓手数 */
+        th:nth-child(8) { width: 70px; }    /* 限仓金额 */
         th:nth-child(9) { width: 80px; }    /* 涨跌停比例 */
         th:nth-child(10) { width: 70px; }   /* 八八分位 */
-        th:nth-child(11) { width: 70px; }   /* 八四分位 */
-        th:nth-child(12) { width: 70px; }   /* 八三分位 */
-        th:nth-child(13) { width: 70px; }   /* 八二分位 */
-        th:nth-child(14) { width: 70px; }   /* 剩余天数 */
-        th:nth-child(15) { width: 70px; }   /* 深度分值 */
-        th:nth-child(16) { width: 70px; }   /* 权利金 */
-        th:nth-child(17) { width: 70px; }   /* 手续费 */
-        th:nth-child(18) { width: 70px; }   /* 平今 */
-        th:nth-child(19) { width: 70px; }   /* 保证金率 */
-        th:nth-child(20) { width: 80px; }   /* 性价比分值 */
-        th:nth-child(21) { width: 60px; }   /* 多空 */
-        th:nth-child(22) { width: 70px; }   /* 技术分值 */
-        th:nth-child(23) { width: 70px; }   /* 现货价 */
-        th:nth-child(24) { width: 70px; }   /* 期货价 */
-        th:nth-child(25) { width: 70px; }   /* 基差分值 */
-        th:nth-child(26) { width: 70px; }   /* 总分 */
+        th:nth-child(11) { width: 70px; }   /* 八七分位 */
+        th:nth-child(12) { width: 70px; }   /* 八六分位 */
+        th:nth-child(13) { width: 70px; }   /* 八五分位 */
+        th:nth-child(14) { width: 70px; }   /* 八四分位 */
+        th:nth-child(15) { width: 70px; }   /* 剩余天数 */
+        th:nth-child(16) { width: 70px; }   /* 深度分值 */
+        th:nth-child(17) { width: 70px; }   /* 权利金 */
+        th:nth-child(18) { width: 70px; }   /* 手续费 */
+        th:nth-child(19) { width: 70px; }   /* 平今 */
+        th:nth-child(20) { width: 70px; }   /* 保证金率 */
+        th:nth-child(21) { width: 80px; }   /* 性价比分值 */
+        th:nth-child(22) { width: 70px; }   /* 夏普比率 */
+        th:nth-child(23) { width: 70px; }   /* 总分 */
 
         td {
             padding: 8px 4px;
@@ -129,13 +126,14 @@
                         <th data-sort-key="合约名称">合约名称</th>
                         <th data-sort-key="当前价">当前价</th>
                         <th data-sort-key="行权价">行权价</th>
-                        <th data-sort-key="限仓">限仓</th>
-                        <th data-sort-key="限仓金额">金额</th>
+                        <th data-sort-key="限仓手数">限仓手数</th>
+                        <th data-sort-key="限仓金额">限仓金额</th>
                         <th data-sort-key="涨跌停比例">涨跌停比例</th>
                         <th data-sort-key="八八分位">八八分位</th>
+                        <th data-sort-key="八七分位">八七分位</th>
+                        <th data-sort-key="八六分位">八六分位</th>
+                        <th data-sort-key="八五分位">八五分位</th>
                         <th data-sort-key="八四分位">八四分位</th>
-                        <th data-sort-key="八三分位">八三分位</th>
-                        <th data-sort-key="八二分位">八二分位</th>
                         <th data-sort-key="剩余天数">剩余天数</th>
                         <th data-sort-key="深度分值">深度分值</th>
                         <th data-sort-key="权利金">权利金</th>
@@ -143,11 +141,7 @@
                         <th data-sort-key="平今">平今</th>
                         <th data-sort-key="保证金率">保证金率</th>
                         <th data-sort-key="性价比分值">性价比分值</th>
-                        <th data-sort-key="多空">多空</th>
-                        <th data-sort-key="技术分值">技术分值</th>
-                        <th data-sort-key="现货价">现货价</th>
-                        <th data-sort-key="期货价">期货价</th>
-                        <th data-sort-key="基差分值">基差分值</th>
+                        <th data-sort-key="夏普比率">夏普比率</th>
                         <th data-sort-key="总分">总分</th>
                     </tr>
                 </thead>
@@ -160,13 +154,14 @@
                         <td data-value="{{ record.合约名称 }}">{{ record.合约名称 }}</td>
                         <td data-value="{{ record.当前价 }}">{{ record.当前价 }}</td>
                         <td data-value="{{ record.行权价 }}">{{ record.行权价 }}</td>
-                        <td data-value="{{ record.限仓 }}">{{ record.限仓 }}</td>
+                        <td data-value="{{ record.限仓手数 }}">{{ record.限仓手数 }}手</td>
                         <td data-value="{{ record.限仓金额 }}">{{ record.限仓金额 }}w</td>
                         <td data-value="{{ record.涨跌停比例 }}">{{ record.涨跌停比例 }}</td>
                         <td data-value="{{ record.八八分位 }}">{{ record.八八分位 }}</td>
+                        <td data-value="{{ record.八七分位 }}">{{ record.八七分位 }}</td>
+                        <td data-value="{{ record.八六分位 }}">{{ record.八六分位 }}</td>
+                        <td data-value="{{ record.八五分位 }}">{{ record.八五分位 }}</td>
                         <td data-value="{{ record.八四分位 }}">{{ record.八四分位 }}</td>
-                        <td data-value="{{ record.八三分位 }}">{{ record.八三分位 }}</td>
-                        <td data-value="{{ record.八二分位 }}">{{ record.八二分位 }}</td>
                         <td data-value="{{ record.剩余天数 }}">{{ record.剩余天数 }}</td>
                         <td data-value="{{ record.深度分值 }}">{{ record.深度分值 }}</td>
                         <td data-value="{{ record.权利金 }}">{{ record.权利金 }}</td>
@@ -174,11 +169,7 @@
                         <td data-value="{{ record.平今 }}">{{ record.平今 }}</td>
                         <td data-value="{{ record.保证金率 }}">{{ record.保证金率 }}</td>
                         <td data-value="{{ record.性价比分值 }}">{{ record.性价比分值 }}</td>
-                        <td data-value="{{ record.多空 }}">{{ record.多空 }}</td>
-                        <td data-value="{{ record.技术分值 }}">{{ record.技术分值 }}</td>
-                        <td data-value="{{ record.现货价 }}">{{ record.现货价 }}</td>
-                        <td data-value="{{ record.期货价 }}">{{ record.期货价 }}</td>
-                        <td data-value="{{ record.基差分值 }}">{{ record.基差分值 }}</td>
+                        <td data-value="{{ record.夏普比率 }}">{{ record.夏普比率 }}</td>
                         <td data-value="{{ record.总分 }}">{{ record.总分 }}</td>
                     </tr>
                     {% empty %}

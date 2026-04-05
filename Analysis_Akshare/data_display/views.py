@@ -42,23 +42,24 @@ def data_list(request):
                            "    t1.`看涨合约-看涨期权合约` as 合约名称, "
                            "    t1.`看涨合约-买价` as 权利金, "
                            "    t1.行权价, "
+                           "    t1.结算价 as 期权结算价, "
                            "    t2.settle as 当前价, "
                            "    REPLACE(t3.开仓,'元','') as 手续费, "
                            "    REPLACE(t3.平今,'元','') as 平今, "
                            "    t4.做多保证金率 as 保证金率, "
                            "    t4.合约乘数, "
                            "    t5.涨跌停比例,"
-                           "    t5.限价单每笔最大下单手数 as 限仓, "
+                           "    t5.限价单每笔最大下单手数 as 限仓手数, "
                            "    a.到期日分组, "
                            "    b.剩余天数 "
                            "from ( "
-                           "    select * from (select a.商品名称 as 品种名称,a.合约名称 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约名称, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约名称, '.*[CP]-', '') as 行权价,row_number() over(partition by a.商品名称 order by REGEXP_REPLACE(a.合约名称, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约名称, '.*[CP]-', ''), FLOAT) desc) as rk from option_hist_gfex a left join futures_fees_info b on REGEXP_REPLACE(a.合约名称, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约名称 regexp '.*-C-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.商品名称 as 品种名称,a.结算价,a.合约名称 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约名称, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约名称, '.*[CP]-', '') as 行权价,row_number() over(partition by a.商品名称 order by REGEXP_REPLACE(a.合约名称, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约名称, '.*[CP]-', ''), FLOAT) desc) as rk from option_hist_gfex a left join futures_fees_info b on REGEXP_REPLACE(a.合约名称, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约名称 regexp '.*-C-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.合约代码 as 品种名称,a.合约代码 as `看涨合约-看涨期权合约`,a.今收盘 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) desc) as rk from option_hist_czce a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]C[0-9].*' and a.今收盘 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.合约代码 as 品种名称,a.今结算 as 结算价,a.合约代码 as `看涨合约-看涨期权合约`,a.今收盘 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) desc) as rk from option_hist_czce a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]C[0-9].*' and a.今收盘 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.合约代码 as 品种名称,a.合约代码 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) desc) as rk from option_hist_shfe a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]C[0-9].*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.合约代码 as 品种名称,a.结算价,a.合约代码 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) desc) as rk from option_hist_shfe a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]C[0-9].*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.品种名称,a.合约 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约, '.*[CP]-', '') as 行权价,row_number() over(partition by a.品种名称 order by REGEXP_REPLACE(a.合约, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约, '.*[CP]-', ''), FLOAT) desc) as rk from option_hist_dce a left join futures_fees_info b on REGEXP_REPLACE(a.合约, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约 regexp '.*-C-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.品种名称,a.结算价,a.合约 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约, '.*[CP]-', '') as 行权价,row_number() over(partition by a.品种名称 order by REGEXP_REPLACE(a.合约, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约, '.*[CP]-', ''), FLOAT) desc) as rk from option_hist_dce a left join futures_fees_info b on REGEXP_REPLACE(a.合约, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约 regexp '.*-C-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            ") t1 "
                            "inner join "
                            "    basic_information a "
@@ -118,30 +119,21 @@ def data_list(request):
                 item["当前价"] = float(item["当前价"])
                 item["行权价"] = float(item["行权价"])
                 item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01),2)
+                item["八七分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 7 / 8),2)
+                item["八六分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 6 / 8),2)
+                item["八五分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 5 / 8),2)
                 item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2),2)
-                item["八三分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 3 / 8),2)
-                item["八二分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 4),2)
-                item["八一分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 8),2)
                 # 深度分值
                 item["深度分值"] = min(int(item["八八分位"] * 100 / item["剩余天数"]), 100)
                 # 性价比分值
                 item["期货保证金"] = item["当前价"] * float(item["保证金率"]) * float(item["合约乘数"])
-                item["期权结算价"] = 1
                 item["期权保证金"] = item["期权结算价"] * float(item["合约乘数"]) + max(item["期货保证金"] - max(0.5 * (item["行权价"] - item["当前价"]) * float(item["合约乘数"]), 0), 0.5 * item["期货保证金"])
                 item["性价比分值"] = int(max(float(item["权利金"]) * float(item["合约乘数"]) - float(item["手续费"]), 0) * 10000 / item["剩余天数"] / float(item["期权保证金"]))
-                item["限仓金额"] = int(item["期权保证金"] * item["限仓"] / 10000)
-                # 多空
-                item["多空"] = '多'
-                # 技术分值
-                item["技术分值"] = 1
-                # 现货价
-                item["现货价"] = 54345
-                # 期货价
-                item["期货价"] = item["当前价"]
-                # 基差分值
-                item["基差分值"] = 1
+                item["限仓金额"] = int(item["期权保证金"] * item["限仓手数"] / 10000)
+                # 夏普比率
+                item["夏普比率"] = int(item["性价比分值"] / (101 - item["深度分值"]))
                 # 总分
-                item["总分"] = int(item["深度分值"] * item["性价比分值"] * item["技术分值"] * item["基差分值"] / 100)
+                item["总分"] = int(item["深度分值"] * item["性价比分值"] / 100)
 
                 original_records.append(item)
 
@@ -191,23 +183,24 @@ def data_list_p(request):
                            "    t1.`看涨合约-看涨期权合约` as 合约名称, "
                            "    t1.`看涨合约-买价` as 权利金, "
                            "    t1.行权价, "
+                           "    t1.结算价 as 期权结算价, "
                            "    t2.settle as 当前价, "
                            "    REPLACE(t3.开仓,'元','') as 手续费, "
                            "    REPLACE(t3.平今,'元','') as 平今, "
                            "    t4.做多保证金率 as 保证金率, "
                            "    t4.合约乘数, "
                            "    t5.涨跌停比例,"
-                           "    t5.限价单每笔最大下单手数 as 限仓, "
+                           "    t5.限价单每笔最大下单手数 as 限仓手数, "
                            "    a.到期日分组, "
                            "    b.剩余天数 "
                            "from ( "
-                           "    select * from (select a.商品名称 as 品种名称,a.合约名称 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约名称, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约名称, '.*[CP]-', '') as 行权价,row_number() over(partition by a.商品名称 order by REGEXP_REPLACE(a.合约名称, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约名称, '.*[CP]-', ''), FLOAT) asc) as rk from option_hist_gfex a left join futures_fees_info b on REGEXP_REPLACE(a.合约名称, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约名称 regexp '.*-P-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.商品名称 as 品种名称,a.结算价,a.合约名称 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约名称, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约名称, '.*[CP]-', '') as 行权价,row_number() over(partition by a.商品名称 order by REGEXP_REPLACE(a.合约名称, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约名称, '.*[CP]-', ''), FLOAT) asc) as rk from option_hist_gfex a left join futures_fees_info b on REGEXP_REPLACE(a.合约名称, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约名称 regexp '.*-P-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.合约代码 as 品种名称,a.合约代码 as `看涨合约-看涨期权合约`,a.今收盘 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) asc) as rk from option_hist_czce a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]P[0-9].*' and a.今收盘 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.合约代码 as 品种名称,a.今结算 as 结算价,a.合约代码 as `看涨合约-看涨期权合约`,a.今收盘 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) asc) as rk from option_hist_czce a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]P[0-9].*' and a.今收盘 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.合约代码 as 品种名称,a.合约代码 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) asc) as rk from option_hist_shfe a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]P[0-9].*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.合约代码 as 品种名称,a.结算价,a.合约代码 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) asc) as rk from option_hist_shfe a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]P[0-9].*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.品种名称,a.合约 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约, '.*[CP]-', '') as 行权价,row_number() over(partition by a.品种名称 order by REGEXP_REPLACE(a.合约, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约, '.*[CP]-', ''), FLOAT) asc) as rk from option_hist_dce a left join futures_fees_info b on REGEXP_REPLACE(a.合约, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约 regexp '.*-P-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.品种名称,a.结算价,a.合约 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约, '.*[CP]-', '') as 行权价,row_number() over(partition by a.品种名称 order by REGEXP_REPLACE(a.合约, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约, '.*[CP]-', ''), FLOAT) asc) as rk from option_hist_dce a left join futures_fees_info b on REGEXP_REPLACE(a.合约, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约 regexp '.*-P-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            ") t1 "
                            "inner join "
                            "    basic_information a "
@@ -266,31 +259,22 @@ def data_list_p(request):
                 item["涨跌停比例"] = float(item["涨跌停比例"])
                 item["当前价"] = float(item["当前价"])
                 item["行权价"] = float(item["行权价"])
-                item["八八分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01),2)
-                item["八四分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 / 2),2)
-                item["八三分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 * 3 / 8),2)
-                item["八二分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 / 4),2)
-                item["八一分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 / 8),2)
+                item["八八分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01), 2)
+                item["八七分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 * 7 / 8), 2)
+                item["八六分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 * 6 / 8), 2)
+                item["八五分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 * 5 / 8), 2)
+                item["八四分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 / 2), 2)
                 # 深度分值
                 item["深度分值"] = min(int(item["八八分位"] * 100 / item["剩余天数"]), 100)
                 # 性价比分值
                 item["期货保证金"] = item["当前价"] * float(item["保证金率"]) * float(item["合约乘数"])
-                item["期权结算价"] = 1
                 item["期权保证金"] = item["期权结算价"] * float(item["合约乘数"]) + max(item["期货保证金"] - max(0.5 * -(item["行权价"] - item["当前价"]) * float(item["合约乘数"]), 0), 0.5 * item["期货保证金"])
                 item["性价比分值"] = int(max(float(item["权利金"]) * float(item["合约乘数"]) - float(item["手续费"]), 0) * 10000 / item["剩余天数"] / float(item["期权保证金"]))
-                item["限仓金额"] = int(item["期权保证金"] * item["限仓"] / 10000)
-                # 多空
-                item["多空"] = '多'
-                # 技术分值
-                item["技术分值"] = 1
-                # 现货价
-                item["现货价"] = 54345
-                # 期货价
-                item["期货价"] = item["当前价"]
-                # 基差分值
-                item["基差分值"] = 1
+                item["限仓金额"] = int(item["期权保证金"] * item["限仓手数"] / 10000)
+                # 夏普比率
+                item["夏普比率"] = int(item["性价比分值"] / (101 - item["深度分值"]))
                 # 总分
-                item["总分"] = int(item["深度分值"] * item["性价比分值"] * item["技术分值"] * item["基差分值"] / 100)
+                item["总分"] = int(item["深度分值"] * item["性价比分值"] / 100)
 
                 original_records.append(item)
 
@@ -340,23 +324,24 @@ def data_list_84(request):
                            "    t1.`看涨合约-看涨期权合约` as 合约名称, "
                            "    t1.`看涨合约-买价` as 权利金, "
                            "    t1.行权价, "
+                           "    t1.结算价 as 期权结算价, "
                            "    t2.settle as 当前价, "
                            "    REPLACE(t3.开仓,'元','') as 手续费, "
                            "    REPLACE(t3.平今,'元','') as 平今, "
                            "    t4.做多保证金率 as 保证金率, "
                            "    t4.合约乘数, "
                            "    t5.涨跌停比例,"
-                           "    t5.限价单每笔最大下单手数 as 限仓, "
+                           "    t5.限价单每笔最大下单手数 as 限仓手数, "
                            "    a.到期日分组, "
                            "    b.剩余天数 "
                            "from ( "
-                           "    select * from (select a.商品名称 as 品种名称,a.合约名称 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约名称, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约名称, '.*[CP]-', '') as 行权价,row_number() over(partition by a.商品名称 order by REGEXP_REPLACE(a.合约名称, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约名称, '.*[CP]-', ''), FLOAT) desc) as rk from option_hist_gfex a left join futures_fees_info b on REGEXP_REPLACE(a.合约名称, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约名称 regexp '.*-C-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.商品名称 as 品种名称,a.结算价,a.合约名称 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约名称, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约名称, '.*[CP]-', '') as 行权价,row_number() over(partition by a.商品名称 order by REGEXP_REPLACE(a.合约名称, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约名称, '.*[CP]-', ''), FLOAT) desc) as rk from option_hist_gfex a left join futures_fees_info b on REGEXP_REPLACE(a.合约名称, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约名称 regexp '.*-C-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.合约代码 as 品种名称,a.合约代码 as `看涨合约-看涨期权合约`,a.今收盘 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) desc) as rk from option_hist_czce a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]C[0-9].*' and a.今收盘 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.合约代码 as 品种名称,a.今结算 as 结算价,a.合约代码 as `看涨合约-看涨期权合约`,a.今收盘 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) desc) as rk from option_hist_czce a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]C[0-9].*' and a.今收盘 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.合约代码 as 品种名称,a.合约代码 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) desc) as rk from option_hist_shfe a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]C[0-9].*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.合约代码 as 品种名称,a.结算价,a.合约代码 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) desc) as rk from option_hist_shfe a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]C[0-9].*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.品种名称,a.合约 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约, '.*[CP]-', '') as 行权价,row_number() over(partition by a.品种名称 order by REGEXP_REPLACE(a.合约, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约, '.*[CP]-', ''), FLOAT) desc) as rk from option_hist_dce a left join futures_fees_info b on REGEXP_REPLACE(a.合约, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约 regexp '.*-C-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.品种名称,a.结算价,a.合约 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约, '.*[CP]-', '') as 行权价,row_number() over(partition by a.品种名称 order by REGEXP_REPLACE(a.合约, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约, '.*[CP]-', ''), FLOAT) desc) as rk from option_hist_dce a left join futures_fees_info b on REGEXP_REPLACE(a.合约, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约 regexp '.*-C-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            ") t1 "
                            "inner join "
                            "    basic_information a "
@@ -415,31 +400,22 @@ def data_list_84(request):
                 item["涨跌停比例"] = float(item["涨跌停比例"])
                 item["当前价"] = float(item["当前价"])
                 item["行权价"] = float(item["行权价"])
-                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01),2)
-                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2),2)
-                item["八三分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 3 / 8),2)
-                item["八二分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 4),2)
-                item["八一分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 8),2)
+                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01), 2)
+                item["八七分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 7 / 8), 2)
+                item["八六分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 6 / 8), 2)
+                item["八五分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 5 / 8), 2)
+                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2), 2)
                 # 深度分值
                 item["深度分值"] = min(int(item["八八分位"] * 100 / item["剩余天数"]), 100)
                 # 性价比分值
                 item["期货保证金"] = item["当前价"] * float(item["保证金率"]) * float(item["合约乘数"])
-                item["期权结算价"] = 1
                 item["期权保证金"] = item["期权结算价"] * float(item["合约乘数"]) + max(item["期货保证金"] - max(0.5 * (item["行权价"] - item["当前价"]) * float(item["合约乘数"]), 0), 0.5 * item["期货保证金"])
                 item["性价比分值"] = int(max(float(item["权利金"]) * float(item["合约乘数"]) - float(item["手续费"]), 0) * 10000 / item["剩余天数"] / float(item["期权保证金"]))
-                item["限仓金额"] = int(item["期权保证金"] * item["限仓"] / 10000)
-                # 多空
-                item["多空"] = '多'
-                # 技术分值
-                item["技术分值"] = 1
-                # 现货价
-                item["现货价"] = 54345
-                # 期货价
-                item["期货价"] = item["当前价"]
-                # 基差分值
-                item["基差分值"] = 1
+                item["限仓金额"] = int(item["期权保证金"] * item["限仓手数"] / 10000)
+                # 夏普比率
+                item["夏普比率"] = int(item["性价比分值"] / (101 - item["深度分值"]))
                 # 总分
-                item["总分"] = int(item["深度分值"] * item["性价比分值"] * item["技术分值"] * item["基差分值"] / 100)
+                item["总分"] = int(item["深度分值"] * item["性价比分值"] / 100)
 
                 if item["八四分位"] >= item["剩余天数"]:
                     original_records.append(item)
@@ -489,23 +465,24 @@ def data_list_p_84(request):
                            "    t1.`看涨合约-看涨期权合约` as 合约名称, "
                            "    t1.`看涨合约-买价` as 权利金, "
                            "    t1.行权价, "
+                           "    t1.结算价 as 期权结算价, "
                            "    t2.settle as 当前价, "
                            "    REPLACE(t3.开仓,'元','') as 手续费, "
                            "    REPLACE(t3.平今,'元','') as 平今, "
                            "    t4.做多保证金率 as 保证金率, "
                            "    t4.合约乘数, "
                            "    t5.涨跌停比例,"
-                           "    t5.限价单每笔最大下单手数 as 限仓, "
+                           "    t5.限价单每笔最大下单手数 as 限仓手数, "
                            "    a.到期日分组, "
                            "    b.剩余天数 "
                            "from ( "
-                           "    select * from (select a.商品名称 as 品种名称,a.合约名称 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约名称, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约名称, '.*[CP]-', '') as 行权价,row_number() over(partition by a.商品名称 order by REGEXP_REPLACE(a.合约名称, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约名称, '.*[CP]-', ''), FLOAT) asc) as rk from option_hist_gfex a left join futures_fees_info b on REGEXP_REPLACE(a.合约名称, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约名称 regexp '.*-P-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.商品名称 as 品种名称,a.结算价,a.合约名称 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约名称, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约名称, '.*[CP]-', '') as 行权价,row_number() over(partition by a.商品名称 order by REGEXP_REPLACE(a.合约名称, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约名称, '.*[CP]-', ''), FLOAT) asc) as rk from option_hist_gfex a left join futures_fees_info b on REGEXP_REPLACE(a.合约名称, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约名称 regexp '.*-P-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.合约代码 as 品种名称,a.合约代码 as `看涨合约-看涨期权合约`,a.今收盘 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) asc) as rk from option_hist_czce a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]P[0-9].*' and a.今收盘 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.合约代码 as 品种名称,a.今结算 as 结算价,a.合约代码 as `看涨合约-看涨期权合约`,a.今收盘 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) asc) as rk from option_hist_czce a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]P[0-9].*' and a.今收盘 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.合约代码 as 品种名称,a.合约代码 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) asc) as rk from option_hist_shfe a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]P[0-9].*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.合约代码 as 品种名称,a.结算价,a.合约代码 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') as 合约名称,REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1') as 行权价,row_number() over(partition by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1') order by REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') asc,CONVERT(REGEXP_REPLACE(a.合约代码, '.*[0-9][CP]([0-9]+)', '$1'), FLOAT) asc) as rk from option_hist_shfe a left join futures_fees_info b on REGEXP_REPLACE(a.合约代码, '([a-zA-Z]+)([0-9]+)[CP][0-9].*', '$1$2') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约代码 regexp '.*[0-9]P[0-9].*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            "    union "
-                           "    select * from (select a.品种名称,a.合约 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约, '.*[CP]-', '') as 行权价,row_number() over(partition by a.品种名称 order by REGEXP_REPLACE(a.合约, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约, '.*[CP]-', ''), FLOAT) asc) as rk from option_hist_dce a left join futures_fees_info b on REGEXP_REPLACE(a.合约, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约 regexp '.*-P-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
+                           "    select * from (select a.品种名称,a.结算价,a.合约 as `看涨合约-看涨期权合约`,a.收盘价 as `看涨合约-买价`,REGEXP_REPLACE(a.合约, '-[CP].*', '') as 合约名称,REGEXP_REPLACE(a.合约, '.*[CP]-', '') as 行权价,row_number() over(partition by a.品种名称 order by REGEXP_REPLACE(a.合约, '-[CP].*', '') asc,CONVERT(REGEXP_REPLACE(a.合约, '.*[CP]-', ''), FLOAT) asc) as rk from option_hist_dce a left join futures_fees_info b on REGEXP_REPLACE(a.合约, '-[CP].*', '') = b.合约代码 where a.交易日=%s and b.交易日=%s and a.合约 regexp '.*-P-.*' and a.收盘价 > b.最小跳动 / 2) t where t.rk=1 "
                            ") t1 "
                            "inner join "
                            "    basic_information a "
@@ -564,31 +541,22 @@ def data_list_p_84(request):
                 item["涨跌停比例"] = float(item["涨跌停比例"])
                 item["当前价"] = float(item["当前价"])
                 item["行权价"] = float(item["行权价"])
-                item["八八分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01),2)
-                item["八四分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 / 2),2)
-                item["八三分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 * 3 / 8),2)
-                item["八二分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 / 4),2)
-                item["八一分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 / 8),2)
+                item["八八分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01), 2)
+                item["八七分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 * 7 / 8), 2)
+                item["八六分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 * 6 / 8), 2)
+                item["八五分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 * 5 / 8), 2)
+                item["八四分位"] = 0 if item["行权价"] > item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 - item["涨跌停比例"] * 0.01 / 2), 2)
                 # 深度分值
                 item["深度分值"] = min(int(item["八八分位"] * 100 / item["剩余天数"]), 100)
                 # 性价比分值
                 item["期货保证金"] = item["当前价"] * float(item["保证金率"]) * float(item["合约乘数"])
-                item["期权结算价"] = 1
                 item["期权保证金"] = item["期权结算价"] * float(item["合约乘数"]) + max(item["期货保证金"] - max(0.5 * -(item["行权价"] - item["当前价"]) * float(item["合约乘数"]), 0), 0.5 * item["期货保证金"])
                 item["性价比分值"] = int(max(float(item["权利金"]) * float(item["合约乘数"]) - float(item["手续费"]), 0) * 10000 / item["剩余天数"] / float(item["期权保证金"]))
-                item["限仓金额"] = int(item["期权保证金"] * item["限仓"] / 10000)
-                # 多空
-                item["多空"] = '多'
-                # 技术分值
-                item["技术分值"] = 1
-                # 现货价
-                item["现货价"] = 54345
-                # 期货价
-                item["期货价"] = item["当前价"]
-                # 基差分值
-                item["基差分值"] = 1
+                item["限仓金额"] = int(item["期权保证金"] * item["限仓手数"] / 10000)
+                # 夏普比率
+                item["夏普比率"] = int(item["性价比分值"] / (101 - item["深度分值"]))
                 # 总分
-                item["总分"] = int(item["深度分值"] * item["性价比分值"] * item["技术分值"] * item["基差分值"] / 100)
+                item["总分"] = int(item["深度分值"] * item["性价比分值"] / 100)
 
                 if item["八四分位"] >= item["剩余天数"]:
                     original_records.append(item)
@@ -857,7 +825,7 @@ def real_time(request):
                            "    t4.做多保证金率 as 保证金率, "
                            "    t4.合约乘数, "
                            "    t5.涨跌停比例, "
-                           "    t5.限价单每笔最大下单手数 as 限仓, "
+                           "    t5.限价单每笔最大下单手数 as 限仓手数, "
                            "    a.到期日分组, "
                            "    b.剩余天数 "
                            "from ( "
@@ -928,11 +896,11 @@ def real_time(request):
                 item["涨跌停比例"] = float(item["涨跌停比例"])
                 item["当前价"] = float(item["当前价"])
                 item["行权价"] = float(item["行权价"])
-                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01),2)
-                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2),2)
-                item["八三分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 3 / 8),2)
-                item["八二分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 4),2)
-                item["八一分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 8),2)
+                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01), 2)
+                item["八七分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 7 / 8), 2)
+                item["八六分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 6 / 8), 2)
+                item["八五分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 5 / 8), 2)
+                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2), 2)
                 # 深度分值
                 item["深度分值"] = min(int(item["八八分位"] * 100 / item["剩余天数"]), 100)
                 # 性价比分值
@@ -940,22 +908,14 @@ def real_time(request):
                 item["期权结算价"] = 1
                 item["期权保证金"] = item["期权结算价"] * float(item["合约乘数"]) + max(item["期货保证金"] - max(0.5 * (item["行权价"] - item["当前价"]) * float(item["合约乘数"]), 0), 0.5 * item["期货保证金"])
                 item["性价比分值"] = int(max(float(item["权利金"]) * float(item["合约乘数"]) - float(item["手续费"]), 0) * 10000 / item["剩余天数"] / float(item["期权保证金"]))
-                item["限仓金额"] = int(item["期权保证金"] * item["限仓"] / 10000)
-                # 多空
-                item["多空"] = '多'
-                # 技术分值
-                item["技术分值"] = 1
-                # 现货价
-                item["现货价"] = 54345
-                # 期货价
-                item["期货价"] = item["当前价"]
-                # 基差分值
-                item["基差分值"] = 1
+                item["限仓金额"] = int(item["期权保证金"] * item["限仓手数"] / 10000)
+                # 夏普比率
+                item["夏普比率"] = int(item["性价比分值"] / (101 - item["深度分值"]))
                 # 总分
-                item["总分"] = int(item["深度分值"] * item["性价比分值"] * item["技术分值"] * item["基差分值"] / 100)
+                item["总分"] = int(item["深度分值"] * item["性价比分值"] / 100)
 
-                if item["八二分位"] >= item["剩余天数"]:
-                    original_records.append(item)
+                original_records.append(item)
+
             # 核心：按"总分"排序（数值排序）
             # 注意：确保数据库中该字段是数值类型（如DECIMAL/FLOAT）
             records = sorted(
@@ -1002,7 +962,7 @@ def real_time_84(request):
                            "    t4.做多保证金率 as 保证金率, "
                            "    t4.合约乘数, "
                            "    t5.涨跌停比例, "
-                           "    t5.限价单每笔最大下单手数 as 限仓, "
+                           "    t5.限价单每笔最大下单手数 as 限仓手数, "
                            "    a.到期日分组, "
                            "    b.剩余天数 "
                            "from ( "
@@ -1073,11 +1033,11 @@ def real_time_84(request):
                 item["涨跌停比例"] = float(item["涨跌停比例"])
                 item["当前价"] = float(item["当前价"])
                 item["行权价"] = float(item["行权价"])
-                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01),2)
-                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2),2)
-                item["八三分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 3 / 8),2)
-                item["八二分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 4),2)
-                item["八一分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 8),2)
+                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01), 2)
+                item["八七分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 7 / 8), 2)
+                item["八六分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 6 / 8), 2)
+                item["八五分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 5 / 8), 2)
+                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2), 2)
                 # 深度分值
                 item["深度分值"] = min(int(item["八八分位"] * 100 / item["剩余天数"]), 100)
                 # 性价比分值
@@ -1085,19 +1045,11 @@ def real_time_84(request):
                 item["期权结算价"] = 1
                 item["期权保证金"] = item["期权结算价"] * float(item["合约乘数"]) + max(item["期货保证金"] - max(0.5 * (item["行权价"] - item["当前价"]) * float(item["合约乘数"]), 0), 0.5 * item["期货保证金"])
                 item["性价比分值"] = int(max(float(item["权利金"]) * float(item["合约乘数"]) - float(item["手续费"]), 0) * 10000 / item["剩余天数"] / float(item["期权保证金"]))
-                item["限仓金额"] = int(item["期权保证金"] * item["限仓"] / 10000)
-                # 多空
-                item["多空"] = '多'
-                # 技术分值
-                item["技术分值"] = 1
-                # 现货价
-                item["现货价"] = 54345
-                # 期货价
-                item["期货价"] = item["当前价"]
-                # 基差分值
-                item["基差分值"] = 1
+                item["限仓金额"] = int(item["期权保证金"] * item["限仓手数"] / 10000)
+                # 夏普比率
+                item["夏普比率"] = int(item["性价比分值"] / (101 - item["深度分值"]))
                 # 总分
-                item["总分"] = int(item["深度分值"] * item["性价比分值"] * item["技术分值"] * item["基差分值"] / 100)
+                item["总分"] = int(item["深度分值"] * item["性价比分值"] / 100)
 
                 if item["八四分位"] >= item["剩余天数"]:
                     original_records.append(item)
@@ -1147,7 +1099,7 @@ def real_time_last_day(request):
                            "    t4.做多保证金率 as 保证金率, "
                            "    t4.合约乘数, "
                            "    t5.涨跌停比例, "
-                           "    t5.限价单每笔最大下单手数 as 限仓, "
+                           "    t5.限价单每笔最大下单手数 as 限仓手数, "
                            "    a.到期日分组, "
                            "    b.剩余天数 "
                            "from ( "
@@ -1218,11 +1170,11 @@ def real_time_last_day(request):
                 item["涨跌停比例"] = float(item["涨跌停比例"])
                 item["当前价"] = float(item["当前价"])
                 item["行权价"] = float(item["行权价"])
-                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01),2)
-                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2),2)
-                item["八三分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 3 / 8),2)
-                item["八二分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 4),2)
-                item["八一分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 8),2)
+                item["八八分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01), 2)
+                item["八七分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 7 / 8), 2)
+                item["八六分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 6 / 8), 2)
+                item["八五分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 * 5 / 8), 2)
+                item["八四分位"] = 0 if item["行权价"] < item["当前价"] else round(math.log(item["行权价"] / item["当前价"]) / math.log(1 + item["涨跌停比例"] * 0.01 / 2), 2)
                 # 深度分值
                 item["深度分值"] = min(int(item["八八分位"] * 100 / item["剩余天数"]), 100)
                 # 性价比分值
@@ -1230,21 +1182,13 @@ def real_time_last_day(request):
                 item["期权结算价"] = 1
                 item["期权保证金"] = item["期权结算价"] * float(item["合约乘数"]) + max(item["期货保证金"] - max(0.5 * (item["行权价"] - item["当前价"]) * float(item["合约乘数"]), 0), 0.5 * item["期货保证金"])
                 item["性价比分值"] = int(max(float(item["权利金"]) * float(item["合约乘数"]) - float(item["手续费"]), 0) * 10000 / item["剩余天数"] / float(item["期权保证金"]))
-                item["限仓金额"] = int(item["期权保证金"] * item["限仓"] / 10000)
-                # 多空
-                item["多空"] = '多'
-                # 技术分值
-                item["技术分值"] = 1
-                # 现货价
-                item["现货价"] = 54345
-                # 期货价
-                item["期货价"] = item["当前价"]
-                # 基差分值
-                item["基差分值"] = 1
+                item["限仓金额"] = int(item["期权保证金"] * item["限仓手数"] / 10000)
+                # 夏普比率
+                item["夏普比率"] = int(item["性价比分值"] / (101 - item["深度分值"]))
                 # 总分
-                item["总分"] = int(item["深度分值"] * item["性价比分值"] * item["技术分值"] * item["基差分值"] / 100)
+                item["总分"] = int(item["深度分值"] * item["性价比分值"] / 100)
 
-                if item["八二分位"] >= item["剩余天数"]:
+                if item["八四分位"] >= item["剩余天数"]:
                     original_records.append(item)
             # 核心：按"总分"排序（数值排序）
             # 注意：确保数据库中该字段是数值类型（如DECIMAL/FLOAT）
