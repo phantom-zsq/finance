@@ -1,0 +1,4 @@
+# 导出整个数据库,不包含数据
+mysqldump -u root -p -d akshare > akshare_no_data.sql
+# 导出整个数据库,包含数据
+mysqldump -u root -p akshare > akshare.sql
