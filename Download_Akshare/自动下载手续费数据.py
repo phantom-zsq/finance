@@ -10,7 +10,7 @@ if __name__ == '__main__':
     print(trade_date)
 
     # 每日更新cookie
-    cookie = ""
+    cookie = "111"
 
     # 期货涨跌停
     print("期货涨跌停")
